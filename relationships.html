@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0b0d13">
+<meta name="theme-color" content="#0b0d13">
+<title>名探偵コナン 相関図</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --text: #1c2030;
+    --muted: #6a7187;
+    --line: #d9dde7;
+    --accent: #c8102e;
+    --edge: #9aa2b5;
+    --edge-hot: #c8102e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101319;
+      --card: #1a1f2b;
+      --text: #e9ebf2;
+      --muted: #98a0b6;
+      --line: #2c3343;
+      --accent: #ff4d5e;
+      --edge: #5d6680;
+      --edge-hot: #ff4d5e;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101319;
+    --card: #1a1f2b;
+    --text: #e9ebf2;
+    --muted: #98a0b6;
+    --line: #2c3343;
+    --accent: #ff4d5e;
+    --edge: #5d6680;
+    --edge-hot: #ff4d5e;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+  }
+  h1 {
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+  }
+  .lead {
+    margin: 0 0 16px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  /* stage control */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .controls button {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .controls input[type="range"] {
+    flex: 1 1 220px;
+    accent-color: var(--accent);
+  }
+  .stage-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+  .stage-label strong { color: var(--text); }
+
+  /* map */
+  .map {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 11;
+    min-height: 460px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .map svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .map line {
+    stroke: var(--edge);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+    transition: stroke 0.15s ease, opacity 0.2s ease;
+  }
+  .map line.hot {
+    stroke: var(--edge-hot);
+    stroke-width: 2.5;
+  }
+  .map line.dim { opacity: 0.25; }
+  .edge-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-size: 0.68rem;
+    color: var(--muted);
+    background: var(--card);
+    padding: 1px 6px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .edge-label.hot { color: var(--edge-hot); border-color: var(--edge-hot); }
+  .edge-label[hidden] { display: none; }
+
+  .node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 118px;
+    padding: 8px 9px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    box-shadow: 0 2px 8px -4px rgba(0, 0, 0, 0.18);
+    text-align: center;
+    cursor: pointer;
+    font: inherit;
+    color: var(--text);
+    transition: opacity 0.25s ease, border-color 0.15s ease, transform 0.25s ease;
+  }
+  .node .nm {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .node .tag {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.66rem;
+    color: var(--muted);
+  }
+  .node.main { border-color: var(--accent); border-width: 2px; }
+  .node.selected { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.18); }
+  .node[hidden] { display: none; }
+  .node.enter { animation: pop 0.3s ease; }
+  @keyframes pop {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  /* detail */
+  .detail {
+    margin-top: 14px;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+    min-height: 90px;
+  }
+  .detail h2 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+  }
+  .detail p {
+    margin: 0 0 8px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .detail ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.9rem;
+  }
+  .detail li { margin-bottom: 3px; }
+  .note {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .node .av {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 6px;
+    border-radius: 50%;
+    overflow: hidden;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .node .av img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .node .av.has-img .ini { visibility: hidden; }
+
+  /* same dark look as the 年表 page */
+  body {
+    --bg: #0b0d13;
+    --card: #10131c;
+    --text: #ece7dc;
+    --muted: #8189a0;
+    --line: #232939;
+    --accent: #d6a24a;
+    --edge: #3a4256;
+    --edge-hot: #d6a24a;
+    background: var(--bg);
+    color: var(--text);
+  }
+  h1 {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+  }
+  .controls button { color: var(--text); }
+  .node .av { color: #ffffff; }
+
+  @media (max-width: 560px) {
+    .map { min-height: 620px; aspect-ratio: auto; }
+    .node .av { width: 34px; height: 34px; font-size: 0.85rem; }
+    .node { width: 96px; padding: 6px 6px; }
+    .node .nm { font-size: 0.72rem; }
+    .edge-label { font-size: 0.6rem; }
+  }
+
+  /* shared navigation bar, the same on every page */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding: 12px 20px;
+    background: rgba(11, 13, 19, 0.94);
+    border-bottom: 1px solid #232939;
+    box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.95);
+    font-family: "Hiragino Sans", "Noto Sans JP", -apple-system, sans-serif;
+  }
+  .site-nav .brand {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: #d6a24a;
+    text-decoration: none;
+  }
+  .site-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .site-links a {
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #8189a0;
+    text-decoration: none;
+    font-size: 0.86rem;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .site-links a:hover {
+    color: #ece7dc;
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .site-links a.current {
+    color: #1a1410;
+    font-weight: 600;
+    background: linear-gradient(180deg, #e6b860, #d6a24a);
+  }
+  .site-links a:focus-visible {
+    outline: 2px solid #d6a24a;
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+  <nav class="site-nav" aria-label="ページ">
+    <a class="brand" href="index.html">Konan</a>
+    <div class="site-links">
+      <a href="index.html">年表</a>
+      <a href="relationships.html" class="current" aria-current="page">相関図</a>
+      <a href="ratings.html">評価</a>
+      <a href="stats.html">統計</a>
+      <a href="songs.html">主題歌</a>
+    </div>
+  </nav>
+<div class="wrap">
+
+  <h1>名探偵コナン 相関図</h1>
+  <p class="lead">登場人物を登場順に表示します。スライダーを動かすか、人物をタップして関係を見られます。</p>
+
+  <div class="controls">
+    <button type="button" id="prev">◀ 戻る</button>
+    <input type="range" id="stage" min="0" max="4" step="1" value="0" aria-label="登場段階">
+    <button type="button" id="next">次へ ▶</button>
+    <button type="button" id="all">すべて表示</button>
+    <div class="stage-label" id="stageLabel"></div>
+  </div>
+
+  <div class="map" id="map">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" id="lines"></svg>
+  </div>
+
+  <div class="detail" id="detail">
+    <h2>人物をタップ</h2>
+    <p>人物を選ぶと、その人の関係が表示されます。</p>
+  </div>
+
+  <p class="note">人物の登場時期は、確認できた情報だけを反映しています。登場時期が未確認の人物は「時期未確認」にまとめています。</p>
+</div>
+
+<script>
+  var STAGES = [
+    { label: '第29話まで（見ている範囲）' },
+    { label: '第30話〜第75話あたり' },
+    { label: '第76話以降' },
+    { label: '第129話以降' },
+    { label: '登場時期が未確認の人物' }
+  ];
+
+  var PEOPLE = [
+    { id: 'conan', name: '江戸川コナン', sub: '工藤新一', stage: 0, x: 50, y: 45, main: true, role: '高校生探偵が薬で小学生の姿になった主人公。' },
+    { id: 'ran', name: '毛利蘭', stage: 0, x: 28, y: 45, main: true, role: '新一の幼馴染。空手の使い手。' },
+    { id: 'kogoro', name: '毛利小五郎', stage: 0, x: 28, y: 20, role: '元警視庁の私立探偵。蘭の父。' },
+    { id: 'agasa', name: '阿笠博士', stage: 0, x: 72, y: 45, role: '発明家。コナンの正体を知る隣人。' },
+    { id: 'ayumi', name: '吉田歩美', stage: 0, x: 36, y: 80, role: '少年探偵団。' },
+    { id: 'genta', name: '小嶋元太', stage: 0, x: 50, y: 90, role: '少年探偵団。' },
+    { id: 'mitsuhiko', name: '円谷光彦', stage: 0, x: 64, y: 80, role: '少年探偵団。' },
+    { id: 'megure', name: '目暮十三', tag: '警部', stage: 0, x: 84, y: 14, role: '捜査一課の警部。' },
+    { id: 'sato', name: '佐藤美和子', tag: '警部補', stage: 1, x: 64, y: 14, role: '捜査一課の警部補。高木の恋人。' },
+    { id: 'takagi', name: '高木渉', tag: '巡査部長', stage: 1, x: 92, y: 30, role: '捜査一課の巡査部長。佐藤の恋人。' },
+    { id: 'heiji', name: '服部平次', stage: 1, x: 12, y: 80, main: true, role: '大阪の高校生探偵。コナンのライバル。' },
+    { id: 'kazuha', name: '遠山和葉', stage: 1, x: 12, y: 60, role: '平次の幼馴染で恋人。' },
+    { id: 'kaito', name: '怪盗キッド', sub: '黒羽快斗', stage: 2, x: 86, y: 64, main: true, role: '怪盗であり高校生マジシャン。コナンのライバル。' },
+    { id: 'haibara', name: '灰原哀', sub: '宮野志保', stage: 3, x: 66, y: 62, main: true, role: '元組織の科学者。阿笠邸に住む。' },
+    { id: 'family', name: '工藤優作・有希子', tag: '両親', stage: 4, x: 46, y: 64, role: '新一の両親。' },
+    { id: 'akemi', name: '宮野明美', stage: 4, x: 90, y: 46, role: '志保の姉。' },
+    { id: 'akai', name: '赤井秀一', stage: 4, x: 8, y: 25, main: true, role: 'FBI捜査官。組織に潜入。' },
+    { id: 'amuro', name: '安室透', sub: '降谷零', stage: 4, x: 40, y: 8, main: true, role: '喫茶ポアロの店員。公安警察の捜査官。' },
+    { id: 'org', name: '黒の組織', tag: 'ジン・ウォッカ・ベルモット', stage: 4, x: 86, y: 88, role: '犯罪組織。' }
+  ];
+
+  var RELS = [
+    ['conan', 'ran', '幼馴染'],
+    ['ran', 'kogoro', '親子'],
+    ['conan', 'kogoro', '推理の代行'],
+    ['conan', 'agasa', '協力者'],
+    ['agasa', 'haibara', '同居'],
+    ['haibara', 'akemi', '姉妹'],
+    ['conan', 'ayumi', '少年探偵団'],
+    ['conan', 'genta', '少年探偵団'],
+    ['conan', 'mitsuhiko', '少年探偵団'],
+    ['megure', 'sato', '上司・部下'],
+    ['megure', 'takagi', '上司・部下'],
+    ['sato', 'takagi', '恋人'],
+    ['heiji', 'kazuha', '恋人'],
+    ['heiji', 'conan', 'ライバル'],
+    ['conan', 'kaito', 'ライバル'],
+    ['conan', 'family', '親子'],
+    ['conan', 'akai', '沖矢昴として同居'],
+    ['haibara', 'org', '元所属'],
+    ['akai', 'org', '潜入'],
+    ['amuro', 'org', '潜入'],
+    ['akemi', 'org', '所属']
+  ];
+
+  var map = document.getElementById('map');
+  var svg = document.getElementById('lines');
+  var detail = document.getElementById('detail');
+  var slider = document.getElementById('stage');
+  var stageLabel = document.getElementById('stageLabel');
+  var selected = null;
+  var byId = {};
+  PEOPLE.forEach(function (p) { byId[p.id] = p; });
+
+  // placeholder avatar colour per character, until real images are added
+  function colorOf(id) {
+    var h = 0;
+    for (var i = 0; i < id.length; i++) { h = (h * 31 + id.charCodeAt(i)) % 360; }
+    return 'hsl(' + h + ', 55%, 52%)';
+  }
+
+  var nodeEls = {};
+  var lineEls = [];
+  var labelEls = [];
+
+  PEOPLE.forEach(function (p) {
+    var el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'node' + (p.main ? ' main' : '');
+    el.style.left = p.x + '%';
+    el.style.top = p.y + '%';
+    el.innerHTML = '<span class="av" style="background:' + colorOf(p.id) + '">' +
+      '<span class="ini">' + p.name.charAt(0) + '</span>' +
+      '<img src="img/' + p.id + '.png" alt="" onload="this.parentNode.classList.add(\'has-img\')" onerror="this.remove()">' +
+      '</span>' +
+      '<span class="nm">' + p.name + '</span>' +
+      (p.sub ? '<span class="tag">' + p.sub + '</span>' : '') +
+      (p.tag ? '<span class="tag">' + p.tag + '</span>' : '');
+    el.addEventListener('click', function () { select(p.id); });
+    map.appendChild(el);
+    nodeEls[p.id] = el;
+  });
+
+  RELS.forEach(function (r) {
+    var a = byId[r[0]], b = byId[r[1]];
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', a.x);
+    line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x);
+    line.setAttribute('y2', b.y);
+    svg.appendChild(line);
+    lineEls.push({ el: line, a: r[0], b: r[1] });
+
+    var lbl = document.createElement('span');
+    lbl.className = 'edge-label';
+    lbl.textContent = r[2];
+    lbl.style.left = ((a.x + b.x) / 2) + '%';
+    lbl.style.top = ((a.y + b.y) / 2) + '%';
+    map.appendChild(lbl);
+    labelEls.push({ el: lbl, a: r[0], b: r[1] });
+  });
+
+  function visible(id) {
+    return byId[id].stage <= +slider.value;
+  }
+
+  function render() {
+    var stage = +slider.value;
+    stageLabel.innerHTML = '<strong>' + stage + '</strong> / 4 ・ ' + STAGES[stage].label;
+    PEOPLE.forEach(function (p) {
+      nodeEls[p.id].hidden = !visible(p.id);
+    });
+    lineEls.forEach(function (o) {
+      o.el.style.display = (visible(o.a) && visible(o.b)) ? '' : 'none';
+    });
+    labelEls.forEach(function (o) {
+      o.el.hidden = !(visible(o.a) && visible(o.b));
+    });
+    if (selected && !visible(selected)) { selected = null; }
+    highlight();
+  }
+
+  function highlight() {
+    Object.keys(nodeEls).forEach(function (id) {
+      nodeEls[id].classList.toggle('selected', id === selected);
+    });
+    lineEls.forEach(function (o) {
+      var hot = selected && (o.a === selected || o.b === selected);
+      o.el.classList.toggle('hot', !!hot);
+      o.el.classList.toggle('dim', !!selected && !hot);
+    });
+    labelEls.forEach(function (o) {
+      var hot = selected && (o.a === selected || o.b === selected);
+      o.el.classList.toggle('hot', !!hot);
+    });
+    renderDetail();
+  }
+
+  function renderDetail() {
+    if (!selected) {
+      detail.innerHTML = '<h2>人物をタップ</h2><p>人物を選ぶと、その人の関係が表示されます。</p>';
+      return;
+    }
+    var p = byId[selected];
+    var items = RELS.filter(function (r) { return r[0] === selected || r[1] === selected; })
+      .filter(function (r) { return visible(r[0]) && visible(r[1]); })
+      .map(function (r) {
+        var other = r[0] === selected ? r[1] : r[0];
+        return '<li>' + byId[other].name + '：' + r[2] + '</li>';
+      });
+    detail.innerHTML = '<h2>' + p.name + (p.sub ? '（' + p.sub + '）' : '') + '</h2>' +
+      '<p>' + p.role + '</p>' +
+      (items.length ? '<ul>' + items.join('') + '</ul>' : '<p>この段階では関係が表示されていません。</p>');
+  }
+
+  function select(id) {
+    selected = selected === id ? null : id;
+    highlight();
+  }
+
+  function setStage(n) {
+    slider.value = Math.max(0, Math.min(4, n));
+    render();
+  }
+
+  slider.addEventListener('input', render);
+  document.getElementById('prev').addEventListener('click', function () { setStage(+slider.value - 1); });
+  document.getElementById('next').addEventListener('click', function () { setStage(+slider.value + 1); });
+  document.getElementById('all').addEventListener('click', function () { setStage(4); });
+
+  render();
+</script>
+<script>if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js"); }</script>
+<script>if (/^(localhost|127[.]0[.]0[.]1)$/.test(location.hostname)) { var last = null; setInterval(function () { var f = location.pathname.endsWith('/') ? 'index.html' : location.pathname.split('/').pop(); fetch(f, { method: 'HEAD', cache: 'no-store' }).then(function (r) { var m = r.headers.get('last-modified'); if (last && m !== last) location.reload(); last = m; }).catch(function () {}); }, 1000); }</script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0d13">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>名探偵コナン 評価</title>
+<style>
+  :root {
+    --bg: #0b0d13;
+    --panel: #10131c;
+    --ink: #ece7dc;
+    --mute: #8189a0;
+    --faint: #4a5167;
+    --line: #232939;
+    --gold: #d6a24a;
+    --gold-dim: rgba(214, 162, 74, 0.4);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap {
+    padding: 0 16px 72px;
+  }
+  header {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    margin: 0 -16px;
+    padding: 24px 16px 14px;
+    background: var(--bg);
+    box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.95);
+  }
+  h1 {
+    margin: 0;
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+  }
+  .sub { margin: 4px 0 0; color: var(--mute); font-size: 0.85rem; }
+  .lnks { display: flex; gap: 16px; flex-wrap: wrap; }
+  .lnk {
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--gold-dim);
+    padding-bottom: 2px;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0 4px;
+    font-size: 0.8rem;
+    color: var(--mute);
+  }
+  .scale {
+    width: 260px;
+    height: 10px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, rgb(70, 150, 220), rgb(34, 38, 52) 50%, rgb(255, 88, 64));
+  }
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 260px;
+    font-variant-numeric: tabular-nums;
+  }
+  .swatch {
+    display: inline-block;
+    width: 14px;
+    height: 10px;
+    margin-right: 6px;
+    border-radius: 2px;
+    background: #151822;
+    vertical-align: middle;
+  }
+
+  /* one full-width block per season, its own hue set by --hue */
+  .season {
+    position: relative;
+    margin-top: 38px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .season::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -2px;
+    width: 72px;
+    height: 3px;
+    border-radius: 2px;
+    background: hsl(var(--hue) 75% 58%);
+  }
+  .shead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 16px;
+    margin-bottom: 12px;
+  }
+  .sn {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: hsl(var(--hue) 75% 70%);
+    line-height: 1.1;
+  }
+  .sy, .sc {
+    font-size: 0.8rem;
+    color: var(--mute);
+    font-variant-numeric: tabular-nums;
+  }
+  .sa {
+    padding: 2px 9px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--mute);
+    background: #1a1d28;
+  }
+  .sa b { font-weight: 600; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .cell {
+    width: 100%;
+    height: 50px;
+    border: 0;
+    border-radius: 6px;
+    background: #151822;
+    color: #cfd3de;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    padding: 0;
+  }
+  .cell.nr { color: var(--faint); background: #12141d; font-weight: 400; }
+  .cell.few { opacity: 0.5; }
+  .cell.top { box-shadow: inset 0 0 0 2px var(--gold); }
+  .cell.empty { background: transparent; cursor: default; }
+  .cell:not(.empty):hover,
+  .cell:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 1px;
+  }
+  .cell.sel {
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
+  }
+  .detail {
+    margin-top: 28px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    min-height: 66px;
+    font-size: 0.9rem;
+  }
+  .detail .dt { color: var(--mute); font-size: 0.8rem; }
+  .detail .dn { font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif; font-size: 1.05rem; margin: 2px 0 4px; }
+  .detail .dr { color: var(--gold); font-variant-numeric: tabular-nums; }
+  .detail .dr small { color: var(--mute); }
+  .note { color: var(--faint); font-size: 0.8rem; margin-top: 16px; }
+  .msg { color: var(--mute); padding: 20px 0; }
+
+  .yt {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 16px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: #ff4a4a;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .yt:hover { filter: brightness(1.08); }
+
+  /* episode modal */
+  dialog {
+    width: min(420px, calc(100% - 32px));
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    color: var(--ink);
+    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.85);
+  }
+  dialog::backdrop { background: rgba(5, 6, 10, 0.72); }
+  .dclose {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: 0;
+    color: var(--mute);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  .dclose:hover { color: var(--ink); }
+  .dlg-in { padding: 24px 22px 20px; }
+  .mt { font-size: 0.8rem; color: var(--gold); letter-spacing: 0.06em; }
+  .mn {
+    margin: 4px 24px 4px 0;
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .mair { font-size: 0.8rem; color: var(--mute); margin-bottom: 16px; }
+  .mbig {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 2.6rem;
+    line-height: 1.1;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+  .mbig.dim { font-size: 1.2rem; color: var(--faint); }
+  .mvotes { font-size: 0.8rem; color: var(--mute); margin: 4px 0 14px; }
+  .mrows { border-top: 1px solid var(--line); }
+  .mrow {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.88rem;
+    color: var(--mute);
+  }
+  .mrow b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .mnb {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    font-size: 0.8rem;
+    color: var(--mute);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 640px) {
+    .grid { gap: 4px; }
+    .cell { height: 40px; font-size: 0.8rem; }
+    .scale, .scale-labels { width: 200px; }
+  }
+
+  /* shared navigation bar, the same on every page */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding: 12px 20px;
+    background: rgba(11, 13, 19, 0.94);
+    border-bottom: 1px solid #232939;
+    box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.95);
+    font-family: "Hiragino Sans", "Noto Sans JP", -apple-system, sans-serif;
+  }
+  .site-nav .brand {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: #d6a24a;
+    text-decoration: none;
+  }
+  .site-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .site-links a {
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #8189a0;
+    text-decoration: none;
+    font-size: 0.86rem;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .site-links a:hover {
+    color: #ece7dc;
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .site-links a.current {
+    color: #1a1410;
+    font-weight: 600;
+    background: linear-gradient(180deg, #e6b860, #d6a24a);
+  }
+  .site-links a:focus-visible {
+    outline: 2px solid #d6a24a;
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+  <nav class="site-nav" aria-label="ページ">
+    <a class="brand" href="index.html">Konan</a>
+    <div class="site-links">
+      <a href="index.html">年表</a>
+      <a href="relationships.html">相関図</a>
+      <a href="ratings.html" class="current" aria-current="page">評価</a>
+      <a href="stats.html">統計</a>
+      <a href="songs.html">主題歌</a>
+    </div>
+  </nav>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>名探偵コナン 評価</h1>
+      <p class="sub">シーズンごとに並べています。1行は10話で、数字が評価です。</p>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span>評価</span>
+    <div>
+      <div class="scale"></div>
+      <div class="scale-labels"><span>低い</span><span>平均</span><span>高い</span></div>
+    </div>
+    <span><span class="swatch"></span>評価なし</span>
+    <span>金枠は各シーズンの最高評価</span>
+  </div>
+
+  <div id="map"><p class="msg">読み込み中…</p></div>
+
+<dialog id="dlg">
+  <button type="button" class="dclose" id="dlgClose" aria-label="閉じる">×</button>
+  <div class="dlg-in" id="dlgBody"></div>
+</dialog>
+
+  <p class="note">評価が3票未満のマスは薄く表示しています。This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+</div>
+
+<script>
+  (function () {
+    // first absolute episode number of each Japanese season (シーズン1 … シーズン31)
+    var STARTS = [1, 43, 86, 129, 174, 219, 263, 304, 345, 384, 425, 460, 491, 521, 562, 602, 642, 681, 724, 763, 804, 845, 887, 927, 965, 993, 1033, 1068, 1109, 1148, 1187];
+    var NEUTRAL = [34, 38, 52], HOT = [255, 88, 64], COOL = [70, 150, 220];
+    var SPAN = 1.5; // a difference of this much from the season average gives the strongest colour
+
+    function mix(a, b, t) {
+      return [0, 1, 2].map(function (i) { return Math.round(a[i] + (b[i] - a[i]) * t); });
+    }
+    // colour by how far a rating sits from its season average: cool below, hot above
+    function colorOf(d) {
+      var t = Math.max(-1, Math.min(1, d / SPAN));
+      var rgb = t >= 0 ? mix(NEUTRAL, HOT, t) : mix(NEUTRAL, COOL, -t);
+      return { bg: 'rgb(' + rgb.join(',') + ')', fg: Math.abs(t) > 0.5 ? '#ffffff' : '#cfd3de' };
+    }
+    function seasonOf(n) {
+      var s = 1;
+      for (var i = 0; i < STARTS.length; i++) {
+        if (n >= STARTS[i]) s = i + 1;
+      }
+      return s;
+    }
+    function esc(s) {
+      return String(s || '').replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+
+    var dlg = document.getElementById('dlg');
+    var dlgBody = document.getElementById('dlgBody');
+    var selected = null;
+    document.getElementById('dlgClose').addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('click', function (ev) { if (ev.target === dlg) dlg.close(); });
+
+    function row(k, v) {
+      return '<div class="mrow"><span>' + k + '</span><b>' + v + '</b></div>';
+    }
+
+    // s: season number, list: every episode in that season
+    function show(e, cell, s, list) {
+      if (selected) selected.classList.remove('sel');
+      selected = cell;
+      cell.classList.add('sel');
+
+      var rated = list.filter(function (x) { return x.votes; });
+      var avg = rated.length ? rated.reduce(function (a, x) { return a + x.rating; }, 0) / rated.length : null;
+      var sorted = rated.slice().sort(function (a, b) { return b.rating - a.rating; });
+      var byNum = {};
+      list.forEach(function (x) { byNum[x.e] = x; });
+      var prev = byNum[e.e - 1];
+      var next = byNum[e.e + 1];
+      var near = function (x) { return x && x.votes ? '★ ' + x.rating.toFixed(1) : '—'; };
+
+      var body = '<div class="mt">S' + s + '　第' + e.e + '話</div>';
+      body += '<div class="mn">' + esc(e.name) + '</div>';
+      body += '<div class="mair">' + (e.air ? esc(e.air) : '') + '</div>';
+      if (e.votes) {
+        var diff = e.rating - avg;
+        body += '<div class="mbig">★ ' + e.rating.toFixed(1) + '</div>';
+        body += '<div class="mvotes">' + e.votes + '票' + (e.votes < 3 ? '（参考値）' : '') + '</div>';
+        body += '<div class="mrows">' +
+          row('シーズン平均', avg.toFixed(2)) +
+          row('平均との差', (diff >= 0 ? '+' : '') + diff.toFixed(2)) +
+          row('シーズン内の順位', (sorted.indexOf(e) + 1) + ' / ' + rated.length) +
+        '</div>';
+      } else {
+        body += '<div class="mbig dim">評価なし</div>';
+      }
+      body += '<div class="mnb"><span>前話 ' + near(prev) + '</span><span>次話 ' + near(next) + '</span></div>';
+      body += '<a class="yt" href="https://www.youtube.com/results?search_query=' + encodeURIComponent('名探偵コナン 第' + e.e + '話 ' + e.name) + '" target="_blank" rel="noopener">▶ YouTubeで探す</a>';
+      dlgBody.innerHTML = body;
+      dlg.showModal();
+    }
+
+    function buildSeason(s, byNum, from, to, list) {
+      var rated = list.filter(function (e) { return e.votes; }).map(function (e) { return e.rating; });
+      var avg = rated.length ? rated.reduce(function (a, b) { return a + b; }, 0) / rated.length : null;
+      var maxR = rated.length ? Math.max.apply(null, rated) : null;
+      var first = list.find(function (e) { return e.air; });
+      var year = first ? first.air.slice(0, 4) : '';
+      var hue = (s * 53 + 200) % 360;
+
+      var section = document.createElement('section');
+      section.className = 'season';
+      section.style.setProperty('--hue', hue);
+
+      var avgHtml = avg === null
+        ? '<span class="sa">評価なし</span>'
+        : '<span class="sa">平均 <b>' + avg.toFixed(2) + '</b></span>';
+      section.innerHTML =
+        '<div class="shead">' +
+          '<span class="sn">S' + s + '</span>' +
+          '<span class="sy">' + year + '</span>' +
+          '<span class="sc">第' + from + '〜' + to + '話（' + list.length + '話）</span>' +
+          avgHtml +
+        '</div>';
+
+      var grid = document.createElement('div');
+      grid.className = 'grid';
+      for (var n = from; n <= to; n++) {
+        var e = byNum[n];
+        var cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'cell';
+        if (!e) {
+          cell.classList.add('empty');
+          cell.disabled = true;
+        } else if (!e.votes) {
+          cell.classList.add('nr');
+          cell.textContent = '—';
+          cell.title = e.e + ' ' + e.name + '（評価なし）';
+        } else {
+          var diff = avg === null ? 0 : e.rating - avg;
+          var c = colorOf(diff);
+          cell.style.background = c.bg;
+          cell.style.color = c.fg;
+          if (e.votes < 3) cell.classList.add('few');
+          if (e.rating === maxR) cell.classList.add('top');
+          cell.textContent = e.rating.toFixed(1);
+          cell.title = e.e + ' ' + e.name + '　★' + e.rating.toFixed(1) + '（' + e.votes + '票・平均との差 ' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + '）';
+        }
+        if (e) {
+          (function (ep, el) {
+            el.addEventListener('click', function () { show(ep, el, s, list); });
+          })(e, cell);
+        }
+        grid.appendChild(cell);
+      }
+      section.appendChild(grid);
+      return section;
+    }
+
+    function render(data) {
+      var map = document.getElementById('map');
+      map.innerHTML = '';
+      var groups = {};
+      (data.conan || []).forEach(function (e) {
+        if (e.s === 0) return; // SP is not shown
+        var s = seasonOf(e.e);
+        (groups[s] = groups[s] || []).push(e);
+      });
+      Object.keys(groups).map(Number).sort(function (a, b) { return a - b; }).forEach(function (s) {
+        var list = groups[s];
+        var byNum = {};
+        list.forEach(function (e) { byNum[e.e] = e; });
+        var from = STARTS[s - 1];
+        var to = s < STARTS.length ? STARTS[s] - 1 : Math.max.apply(null, list.map(function (e) { return e.e; }));
+        map.appendChild(buildSeason(s, byNum, from, to, list));
+      });
+    }
+
+    fetch('data/episodes.json')
+      .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(render)
+      .catch(function () {
+        document.getElementById('map').innerHTML = '<p class="msg">評価データが読み込めませんでした。</p>';
+      });
+  })();
+</script>
+<script>if (/^(localhost|127[.]0[.]0[.]1)$/.test(location.hostname)) { var last = null; setInterval(function () { var f = location.pathname.endsWith('/') ? 'index.html' : location.pathname.split('/').pop(); fetch(f, { method: 'HEAD', cache: 'no-store' }).then(function (r) { var m = r.headers.get('last-modified'); if (last && m !== last) location.reload(); last = m; }).catch(function () {}); }, 1000); }</script>
+</body>
+</html>
