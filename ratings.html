@@ -137,7 +137,16 @@
     grid-template-columns: repeat(10, minmax(0, 1fr));
     gap: 6px;
   }
+  .cell .no {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 0.5rem;
+    font-weight: 400;
+    opacity: 0.6;
+  }
   .cell {
+    position: relative;
     width: 100%;
     height: 50px;
     border: 0;
@@ -453,6 +462,10 @@
 
       var grid = document.createElement('div');
       grid.className = 'grid';
+      // empty spacers so each episode sits in the column of its real number (ep 43 is column 4)
+      for (var p = 0; p < (from - 1) % 10; p++) {
+        grid.appendChild(document.createElement('span'));
+      }
       for (var n = from; n <= to; n++) {
         var e = byNum[n];
         var cell = document.createElement('button');
@@ -476,6 +489,11 @@
           cell.title = e.e + ' ' + e.name + '　★' + e.rating.toFixed(1) + '（' + e.votes + '票・平均との差 ' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + '）';
         }
         if (e) {
+          // the episode number, small in the corner
+          var no = document.createElement('span');
+          no.className = 'no';
+          no.textContent = n;
+          cell.appendChild(no);
           (function (ep, el) {
             el.addEventListener('click', function () { show(ep, el, s, list); });
           })(e, cell);
