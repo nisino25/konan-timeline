@@ -346,7 +346,7 @@
     <span>評価</span>
     <div>
       <div class="scale"></div>
-      <div class="scale-labels"><span>低い</span><span>平均</span><span>高い</span></div>
+      <div class="scale-labels"><span>6</span><span>8</span><span>10</span></div>
     </div>
     <span><span class="swatch"></span>評価なし</span>
     <span>金枠は各シーズンの最高評価</span>
@@ -367,7 +367,9 @@
     // first absolute episode number of each Japanese season (シーズン1 … シーズン31)
     var STARTS = [1, 43, 86, 129, 174, 219, 263, 304, 345, 384, 425, 460, 491, 521, 562, 602, 642, 681, 724, 763, 804, 845, 887, 927, 965, 993, 1033, 1068, 1109, 1148, 1187];
     var NEUTRAL = [34, 38, 52], HOT = [255, 88, 64], COOL = [70, 150, 220];
-    var SPAN = 1.5; // a difference of this much from the season average gives the strongest colour
+    // one colour scale for every season: 8 is neutral, 6 is cool, 10 is hot
+    var CENTER = 8;
+    var SPAN = 2;
 
     function mix(a, b, t) {
       return [0, 1, 2].map(function (i) { return Math.round(a[i] + (b[i] - a[i]) * t); });
@@ -480,7 +482,7 @@
           cell.title = e.e + ' ' + e.name + '（評価なし）';
         } else {
           var diff = avg === null ? 0 : e.rating - avg;
-          var c = colorOf(diff);
+          var c = colorOf(e.rating - CENTER);
           cell.style.background = c.bg;
           cell.style.color = c.fg;
           if (e.votes < 3) cell.classList.add('few');
