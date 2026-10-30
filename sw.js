@@ -1,5 +1,6 @@
-// Offline support for the timeline PWA. Bump CACHE when the pages change.
-const CACHE = 'conan-timeline-v3';
+// Offline support for the Konan app. Pages and data come from the network first,
+// so a new deploy shows up at once; the cache is used only when offline.
+const CACHE = 'conan-timeline-v4';
 const SHELL = [
   './',
   './index.html',
@@ -13,7 +14,8 @@ const SHELL = [
   './stats.html',
   './data/episodes.json',
   './data/songs.json',
-  './data/ratings.json'
+  './data/ratings.json',
+  './data/cases.json'
 ];
 
 self.addEventListener('install', (event) => {
@@ -30,20 +32,18 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Cache-first for pages and images; cache what we fetch so it works offline next time.
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   event.respondWith(
-    caches.match(req).then((hit) => {
-      if (hit) return hit;
-      return fetch(req).then((res) => {
+    fetch(req)
+      .then((res) => {
         if (res.ok && res.type === 'basic') {
           const copy = res.clone();
           caches.open(CACHE).then((cache) => cache.put(req, copy));
         }
         return res;
-      }).catch(() => caches.match('./index.html'));
-    })
+      })
+      .catch(() => caches.match(req).then((hit) => hit || caches.match('./index.html')))
   );
 });
