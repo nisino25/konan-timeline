@@ -867,7 +867,6 @@
       root.innerHTML = '';
       var lastYear = null;
       items.forEach(function (it, i) {
-        if (key === 'conan' && it.d > CUT) return; // after the watched-up-to episode
         var y = it.d.slice(0, 4);
         if (y !== lastYear) {
           lastYear = y;
@@ -1025,17 +1024,9 @@
     }
 
     // load ratings, then build the page; if the file is missing, build without ratings
-    // the Konan list stops at the watched-up-to episode (its air date is the cut-off)
-    var CUT = '9999-12-31';
-    fetch('data/episodes.json')
-      .then(function (r) { return r.ok ? r.json() : { conan: [] }; })
-      .catch(function () { return { conan: [] }; })
-      .then(function (eps) {
-        var P = window.konanProgress();
-        var ep = (eps.conan || []).filter(function (e) { return e.e === P && e.s !== 0; })[0];
-        if (ep && ep.air && P < 1218) CUT = ep.air;
-        return fetch('data/ratings.json').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; });
-      })
+    fetch('data/ratings.json')
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .catch(function () { return {}; })
       .then(function (data) {
         RATE = Object.assign({ conan: {}, poke: {} }, data);
         init();

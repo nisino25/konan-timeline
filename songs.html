@@ -238,7 +238,7 @@
       }
 
       // every song in broadcast order (by its first episode, openings first on a tie)
-      var rows = songs.filter(function (s) { return s.f <= window.konanProgress(); }).sort(function (a, b) {
+      var rows = songs.slice().sort(function (a, b) {
         return a.f - b.f || (a.k === 'op' ? -1 : 1);
       });
 
