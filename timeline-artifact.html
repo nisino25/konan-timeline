@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0b0d13">
+<meta name="theme-color" content="#0b0d13">
+<title>ポケモン・名探偵コナン 年表</title>
+<style>
+  :root {
+    --bg: #0b0d13;
+    --panel: #10131c;
+    --ink: #ece7dc;
+    --mute: #8189a0;
+    --faint: #4a5167;
+    --line: #232939;
+    --gold: #d6a24a;
+    --gold-dim: rgba(214, 162, 74, 0.4);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.5;
+  }
+  .serif { font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif; }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 16px 72px;
+  }
+  header {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    margin: 0 -16px;
+    padding: 24px 16px 16px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.95);
+  }
+  h1 {
+    margin: 0;
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+    letter-spacing: 0.02em;
+  }
+  .sub {
+    margin: 4px 0 0;
+    color: var(--mute);
+    font-size: 0.85rem;
+  }
+  /* page links: quiet text with thin dividers */
+  .lnks {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .lnk {
+    padding: 4px 14px;
+    border-left: 1px solid var(--line);
+    color: var(--mute);
+    text-decoration: none;
+    font-size: 0.86rem;
+    letter-spacing: 0.02em;
+    transition: color 0.2s ease;
+  }
+  .lnk:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .lnk:hover { color: var(--gold); }
+  .lnk:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  /* tab switch: a segmented control with a gold pill on the selected tab */
+  .tabs {
+    position: relative;
+    display: inline-flex;
+    gap: 4px;
+    margin-top: 20px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 10px 24px -18px rgba(0, 0, 0, 0.9);
+  }
+  .tab {
+    position: relative;
+    z-index: 1;
+    padding: 9px 20px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--mute);
+    font: inherit;
+    font-size: 0.92rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] {
+    color: #1a1410;
+    font-weight: 600;
+  }
+  /* the gold pill slides behind the selected tab */
+  .tab-ind {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 0;
+    width: 0;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #e6b860, var(--gold));
+    box-shadow: 0 6px 16px -8px rgba(214, 162, 74, 0.7);
+    transition: left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .tab:focus:not(:focus-visible) { outline: none; }
+  .tab:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+  .panel {
+    margin-top: 22px;
+    animation: panelIn 0.35s ease both;
+  }
+  @keyframes panelIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .panel { animation: none; }
+  }
+  .panel[hidden] { display: none; }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+  }
+  .btn {
+    font: inherit;
+    font-size: 0.82rem;
+    color: var(--mute);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .btn.on {
+    color: var(--gold);
+    border-color: var(--gold-dim);
+  }
+  .note {
+    color: var(--faint);
+    font-size: 0.8rem;
+    margin-top: 14px;
+  }
+  .hidden { display: none !important; }
+
+  /* table view */
+  .tbl {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  th, td {
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: 0; }
+  th {
+    color: var(--mute);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+  }
+  td.num { color: var(--gold); width: 44px; }
+  td.date { color: var(--mute); white-space: nowrap; }
+  td.rate { color: var(--gold); white-space: nowrap; }
+  tr.alt td { background: rgba(214, 162, 74, 0.06); }
+  .badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 6px;
+    font-size: 0.7rem;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* timeline: one continuous rail, 84px date | 24px node | content */
+  .tl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+  .tl::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 96px;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--line) 4%, var(--line) 96%, transparent);
+  }
+  .year, .row {
+    display: grid;
+    grid-template-columns: 84px 24px 1fr;
+  }
+  .year {
+    align-items: center;
+    margin: 26px 0 8px;
+  }
+  .yl {
+    text-align: right;
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    color: var(--gold);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+  .yline {
+    height: 1px;
+    margin-left: 12px;
+    background: linear-gradient(90deg, var(--line), transparent);
+  }
+  .row { align-items: start; }
+  .when {
+    text-align: right;
+    padding-top: 8px;
+    font-size: 0.74rem;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .node {
+    justify-self: center;
+    width: 7px;
+    height: 7px;
+    margin-top: 11px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--faint);
+    position: relative;
+    z-index: 1;
+  }
+  .t-m .node {
+    width: 11px;
+    height: 11px;
+    margin-top: 20px;
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px rgba(214, 162, 74, 0.12);
+  }
+  .t-s { margin-top: 10px; }
+  .t-s .node {
+    width: 9px;
+    height: 9px;
+    margin-top: 12px;
+    border-color: var(--mute);
+  }
+  .body { min-width: 0; }
+  .t-e .body {
+    padding: 5px 0 5px 4px;
+    cursor: pointer;
+  }
+  .t-e .body:hover .etitle { color: var(--ink); }
+  .eline {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    white-space: nowrap;
+  }
+  .eno {
+    flex: none;
+    font-size: 0.72rem;
+    color: var(--faint);
+  }
+  .etitle {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.84rem;
+    color: var(--mute);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .erate {
+    flex: none;
+    font-size: 0.74rem;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+  .t-s .body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0 8px;
+  }
+  .stitle {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .ssub {
+    font-size: 0.76rem;
+    color: var(--mute);
+  }
+
+  /* movie card: poster 84x120, card about 140px tall. Tap opens the modal. */
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 172px;
+    margin: 4px 0 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background:
+      linear-gradient(120deg, rgba(214, 162, 74, 0.05), rgba(255, 255, 255, 0) 55%),
+      var(--panel);
+    box-shadow: 0 10px 24px -20px rgba(0, 0, 0, 0.8);
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.18s ease, border-color 0.18s ease;
+  }
+  .card:hover,
+  .card:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--gold-dim);
+  }
+  .poster {
+    position: relative;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 108px;
+    height: 156px;
+    border-radius: 5px;
+    overflow: hidden;
+    background: linear-gradient(160deg, hsl(var(--h) 22% 28%), hsl(var(--h) 30% 12%));
+    box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.9);
+  }
+  .poster .pn {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: rgba(236, 231, 220, 0.75);
+  }
+  .poster::after {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(214, 162, 74, 0.35);
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  .poster .py {
+    position: absolute;
+    bottom: 9px;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    color: rgba(236, 231, 220, 0.6);
+  }
+  .poster img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .poster.has-img .pn,
+  .poster.has-img .py { display: none; }
+  .info {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .mlabel {
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .mtitle {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1.02rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .mdate {
+    font-size: 0.78rem;
+    color: var(--mute);
+  }
+  .mnum {
+    margin-right: 8px;
+    font-size: 0.78rem;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+  }
+  .mrate {
+    font-size: 0.8rem;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+  .mrate .votes { color: var(--faint); }
+  .alt-note {
+    font-size: 0.72rem;
+    color: var(--gold);
+  }
+
+  /* modal */
+  dialog {
+    width: min(460px, calc(100% - 32px));
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    color: var(--ink);
+    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.85);
+  }
+  dialog::backdrop { background: rgba(5, 6, 10, 0.72); }
+  .dclose {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: 0;
+    color: var(--mute);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  .dclose:hover { color: var(--ink); }
+  .dlg-in {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    padding: 22px;
+  }
+  .dposter {
+    position: relative;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 214px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: linear-gradient(160deg, hsl(var(--h) 22% 28%), hsl(var(--h) 30% 12%));
+  }
+  .dposter .pn {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 2.6rem;
+    font-weight: 600;
+    color: rgba(236, 231, 220, 0.75);
+  }
+  .dposter img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .dposter.has-img .pn { display: none; }
+  .dinfo {
+    flex: 1 1 180px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 4px;
+  }
+  .dtitle {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.35;
+    padding-right: 24px;
+  }
+  .drow {
+    font-size: 0.86rem;
+    color: var(--mute);
+    line-height: 1.5;
+  }
+  .drow b { color: var(--ink); font-weight: 500; }
+  .drate {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1.5rem;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+  .drate small {
+    font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+    font-size: 0.78rem;
+    color: var(--mute);
+  }
+  .dnone { color: var(--mute); font-size: 0.9rem; }
+
+  @media (max-width: 560px) {
+    .tl::before { left: 68px; }
+    .year, .row { grid-template-columns: 58px 20px 1fr; }
+    .yl { font-size: 0.9rem; }
+    .when { font-size: 0.68rem; }
+    .poster { width: 92px; height: 132px; }
+    .card { gap: 10px; padding: 8px; min-height: 156px; }
+    .dposter { width: 120px; height: 172px; }
+  }
+
+  /* shared navigation bar, the same on every page */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding: 12px 20px;
+    background: rgba(11, 13, 19, 0.94);
+    border-bottom: 1px solid #232939;
+    box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.95);
+    font-family: "Hiragino Sans", "Noto Sans JP", -apple-system, sans-serif;
+  }
+  .site-nav .brand {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: #d6a24a;
+    text-decoration: none;
+  }
+  .site-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .site-links a {
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #8189a0;
+    text-decoration: none;
+    font-size: 0.86rem;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .site-links a:hover {
+    color: #ece7dc;
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .site-links a.current {
+    color: #1a1410;
+    font-weight: 600;
+    background: linear-gradient(180deg, #e6b860, #d6a24a);
+  }
+  .site-links a:focus-visible {
+    outline: 2px solid #d6a24a;
+    outline-offset: 2px;
+  }
+  /* stats-free timeline: the 映画だけ buttons are hidden */
+  #pokeMovieOnly, #conanMovieOnly { display: none !important; }
+  /* watched-up-to picker in the nav */
+  .prog { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #8189a0; white-space: nowrap; }
+  .prog input { width: 70px; padding: 4px 6px; background: #10131c; color: #ece7dc; border: 1px solid #232939; border-radius: 6px; font: inherit; }
+</style>
+</head>
+<body>
+  <nav class="site-nav" aria-label="ページ">
+    <a class="brand" href="https://claude.ai/artifact/JPMBqSua9scszYeUXQdK6V">Konan</a>
+    <div class="site-links">
+      <a href="https://claude.ai/artifact/JPMBqSua9scszYeUXQdK6V" class="current" aria-current="page">年表</a>
+      <a href="https://claude.ai/artifact/KHPhaRBiSK2XBTiuqU5RnW">相関図</a>
+      <a href="https://claude.ai/artifact/CrsFcY97m6Y3pYchKjM6Mc">評価</a>
+      <a href="https://claude.ai/artifact/Cine5Vwq4eV1V3RSnNi7BN">統計</a>
+      <a href="https://claude.ai/artifact/VVkxz16QJTr51pLoRLXLt6">主題歌</a>
+    </div>
+    <label class="prog">見た話 <input type="number" id="progInput" min="1" max="1218" inputmode="numeric" placeholder="全部"> 話まで</label>
+  </nav>
+<div class="wrap">
+
+  <div class="tabs" role="tablist">
+    <span class="tab-ind" id="tabInd" aria-hidden="true"></span>
+    <button type="button" class="tab" role="tab" id="tab-pokemon" aria-controls="panel-pokemon" aria-selected="false">ポケモン</button>
+    <button type="button" class="tab" role="tab" id="tab-conan" aria-controls="panel-conan" aria-selected="true">名探偵コナン</button>
+  </div>
+
+  <header>
+    <div>
+      <h1 class="serif">ポケモン・名探偵コナン 年表</h1>
+    </div>
+  </header>
+
+
+  <!-- ポケモン -->
+  <section class="panel hidden" id="panel-pokemon" role="tabpanel" aria-labelledby="tab-pokemon">
+    <div class="bar">
+      <button type="button" class="btn on" id="viewTable" aria-pressed="true">表</button>
+      <button type="button" class="btn" id="viewTimeline" aria-pressed="false">年表</button>
+      <button type="button" class="btn" id="pokeMovieOnly" aria-pressed="false">映画だけ</button>
+      <button type="button" class="btn" id="altToggle" aria-pressed="false">別世界線だけ</button>
+    </div>
+
+    <div id="tableView" class="tbl">
+      <table>
+        <thead>
+          <tr><th>#</th><th>公開日</th><th>タイトル</th><th>主なポケモン</th><th>評価</th></tr>
+        </thead>
+        <tbody id="movieRows"></tbody>
+      </table>
+    </div>
+
+    <ol class="tl hidden" id="pokeTimeline"></ol>
+    <p class="note" id="pokeNote">金色の印は映画。映画をタップすると詳細が開きます。評価は TMDB の評価です。</p>
+  </section>
+
+  <!-- 名探偵コナン -->
+  <section class="panel" id="panel-conan" role="tabpanel" aria-labelledby="tab-conan">
+    <div class="bar">
+      <button type="button" class="btn" id="conanMovieOnly" aria-pressed="false">映画だけ</button>
+    </div>
+    <ol class="tl" id="conanTimeline"></ol>
+    <p class="note">各映画の直前に放送された回を載せています。エピソードや映画をタップすると詳細が開きます。2020年は劇場版の公開がありません。</p>
+  </section>
+
+  <p class="note">Posters and ratings: This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+</div>
+
+<dialog id="dlg">
+  <button type="button" class="dclose" id="dlgClose" aria-label="閉じる">×</button>
+  <div class="dlg-in" id="dlgBody"></div>
+</dialog>
+
+<script>
+  (function () {
+    var POKE = [
+      ['s', '1997-04-01', '無印', '全116話'],
+      ['e', '1998-07-16', '第54話', 'けいさつけんガーディ'],
+      ['m', '1998-07-18', 1, 'ミュウツーの逆襲', 'ミュウツー'],
+      ['s', '1998-10-14', '無印-ジョウト', '全158話'],
+      ['e', '1999-07-15', '第104話', 'ピカチュウVSニャース!?'],
+      ['m', '1999-07-19', 2, '幻のポケモン ルギア爆誕', 'ルギア'],
+      ['e', '2000-07-06', '第155話', 'リングマでドッキリ!!'],
+      ['m', '2000-07-08', 3, '結晶塔の帝王 ENTEI', 'エンテイ、アンノーン'],
+      ['e', '2001-07-05', '第205話', 'カクレオンはどこにいる!? みえないポケモンにだいこんらん!'],
+      ['m', '2001-07-07', 4, 'セレビィ 時を超えた遭遇', 'セレビィ'],
+      ['e', '2002-07-11', '第256話', 'リュウグウジム! みずのなかでバトルだぜ!'],
+      ['m', '2002-07-13', 5, '水の都の護神 ラティアスとラティオス', 'ラティアス、ラティオス'],
+      ['s', '2002-11-21', 'アドバンスジェネレーション', '全192話'],
+      ['e', '2003-07-17', '第34話', 'はじめてのポケモンで大パニック!!'],
+      ['m', '2003-07-19', 6, '七夜の願い星 ジラーチ', 'ジラーチ'],
+      ['e', '2004-07-15', '第85話', 'ヒワマキジム! 大空の戦い!!'],
+      ['m', '2004-07-17', 7, '裂空の訪問者 デオキシス', 'デオキシス、レックウザ'],
+      ['e', '2005-07-07', '第134話', 'オツキミやま! ピィとピッピとピクシーと!'],
+      ['m', '2005-07-15', 8, 'ミュウと波導の勇者 ルカリオ', 'ルカリオ、ミュウ'],
+      ['e', '2006-07-06', '第183話', 'エイパムと王様!'],
+      ['m', '2006-07-15', 9, 'ポケモンレンジャーと蒼海の王子 マナフィ', 'マナフィ'],
+      ['s', '2006-09-28', 'ダイヤモンド＆パール', '全193話'],
+      ['e', '2007-07-05', '第39話', 'ピカチュウのおるすばん!'],
+      ['m', '2007-07-14', 10, 'ディアルガVSパルキアVSダークライ', 'ディアルガ、パルキア、ダークライ'],
+      ['e', '2008-07-10', '第86話', 'ヨスガコレクション! ポケモンスタイリストへの道!!'],
+      ['m', '2008-07-19', 11, 'ギラティナと氷空の花束 シェイミ', 'シェイミ'],
+      ['e', '2009-07-09', '第135話', '全員参戦! ポケモンハッスル!!'],
+      ['m', '2009-07-18', 12, 'アルセウス 超克の時空へ', 'アルセウス'],
+      ['e', '2010-07-01', '第183話', '開幕！シンオウリーグ・スズラン大会!!'],
+      ['m', '2010-07-10', 13, '幻影の覇者 ゾロアーク', 'ゾロアーク'],
+      ['s', '2010-09-23', 'ベストウィッシュ', '全133話'],
+      ['e', '2011-07-07', '第39話', '全員集合! ドンバトル!!'],
+      ['m', '2011-07-16', 14, 'ビクティニと黒き英雄 ゼクロム／白き英雄 レシラム', 'ビクティニ、ゼクロム、レシラム'],
+      ['e', '2012-07-05', '第87話', 'イワークの島でサバイバル!'],
+      ['m', '2012-07-14', 15, 'キュレムVS聖剣士 ケルディオ', 'ケルディオ、キュレム'],
+      ['e', '2013-07-04', '第133話', '光る円盤! オーベムたちの街!!'],
+      ['m', '2013-07-13', 16, '神速のゲノセクト ミュウツー覚醒', 'ゲノセクト、ミュウツー'],
+      ['s', '2013-10-17', 'XY', '全142話'],
+      ['e', '2014-07-10', '第34話', '森のチャンピオン! ルチャブル登場!!'],
+      ['m', '2014-07-19', 17, '破壊の繭とディアンシー', 'ディアンシー、イベルタル'],
+      ['e', '2015-07-09', '第81話', '時をかけるサトシ! ロトムの願い!'],
+      ['m', '2015-07-18', 18, '光輪の超魔神フーパ', 'フーパ'],
+      ['e', '2016-07-07', '第126話', 'メガジュカイン対ライチュウ! 経験値いただきます!!'],
+      ['m', '2016-07-16', 19, 'ボルケニオンと機巧のマギアナ', 'ボルケニオン、マギアナ'],
+      ['s', '2016-11-17', 'サン＆ムーン', '全146話'],
+      ['e', '2017-07-06', '第33話', 'ヨワシ強し、池のぬし!'],
+      ['m', '2017-07-15', 20, 'キミにきめた!', 'ピカチュウ', 1],
+      ['e', '2018-07-05', '第81話', 'アローラの若き炎! ロイヤルサトシ誕生!!'],
+      ['m', '2018-07-13', 21, 'みんなの物語', 'ルギア、ゼラオラ', 1],
+      ['m', '2019-05-03', '—', '名探偵ピカチュウ（実写）', 'ピカチュウ', 0, '2019年5月3日（米国）'],
+      ['e', '2019-07-07', '第129話', '大乱闘! バトルロイヤル151!!'],
+      ['m', '2019-07-12', 22, 'ミュウツーの逆襲 EVOLUTION（1作目のリメイク）', 'ミュウツー'],
+      ['s', '2019-11-17', '新無印', '全157話'],
+      ['e', '2020-12-11', '第49話', 'コハルと不思議な不思議なイーブイ!'],
+      ['m', '2020-12-25', 23, 'ココ（英題: Secrets of the Jungle）', 'ザルード（コロナ禍で延期）', 1],
+      ['s', '2023-04-14', 'リコとロイ', '全60話'],
+      ['m', '2027-01-01', '—', 'Pokémon: Wild Card', '—', 0, '未公開（2027年予定）']
+    ];
+
+    var CONAN = [
+      ['s', '1996-01-08', '名探偵コナン（テレビアニメ）', '1996年〜放送中'],
+      ['e', '1997-04-14', 'シーズン2 第54話', 'ゲーム会社殺人事件'],
+      ['m', '1997-04-19', 1, '時計じかけの摩天楼'],
+      ['e', '1998-04-13', 'シーズン3 第97話', '別れのワイン殺人事件'],
+      ['m', '1998-04-18', 2, '14番目の標的（ターゲット）'],
+      ['e', '1999-04-12', 'シーズン4 第140話', 'SOS! 歩美からのメッセージ'],
+      ['m', '1999-04-17', 3, '世紀末の魔術師'],
+      ['e', '2000-04-17', 'シーズン5 第186話', '殺された名探偵（後編）'],
+      ['m', '2000-04-22', 4, '瞳の中の暗殺者'],
+      ['e', '2001-04-16', 'シーズン6 第230話', '謎めいた乗客（前編）'],
+      ['m', '2001-04-21', 5, '天国へのカウントダウン'],
+      ['e', '2002-04-15', 'シーズン7 第274話', '幽霊屋敷の真実（前編）'],
+      ['m', '2002-04-20', 6, 'ベイカー街（ストリート）の亡霊'],
+      ['e', '2003-04-14', 'シーズン8 第315話', '陽のあたる場所'],
+      ['m', '2003-04-19', 7, '迷宮の十字路（クロスロード）'],
+      ['e', '2004-04-12', 'シーズン9 第356話', '怪盗キッドの驚異空中歩行'],
+      ['m', '2004-04-17', 8, '銀翼の奇術師（マジシャン）'],
+      ['e', '2005-03-21', 'シーズン10 第393話', '誘拐…らしい事件'],
+      ['m', '2005-04-09', 9, '水平線上の陰謀（ストラテジー）'],
+      ['e', '2006-04-10', 'シーズン11 第434話', '名犬クールのお手柄'],
+      ['m', '2006-04-15', 10, '探偵たちの鎮魂歌（レクイエム）'],
+      ['e', '2007-04-16', 'シーズン12 第469話', '怪盗キッドと四名画（前編）'],
+      ['m', '2007-04-21', 11, '紺碧の棺（ジョリー・ロジャー）'],
+      ['e', '2008-04-14', 'シーズン13 第501話', '赤と黒のクラッシュ 嫌疑'],
+      ['m', '2008-04-19', 12, '戦慄の楽譜（フルスコア）'],
+      ['e', '2009-03-16', 'シーズン14 第529話', '柔よく謎を制す（後編）'],
+      ['m', '2009-04-18', 13, '漆黒の追跡者（チェイサー）'],
+      ['e', '2010-03-27', 'シーズン15 第570話', '立証確率ゼロの犯罪'],
+      ['m', '2010-04-17', 14, '天空の難破船（ロスト・シップ）'],
+      ['e', '2011-04-09', 'シーズン16 第610話', '被害者はクドウシンイチ'],
+      ['m', '2011-04-16', 15, '沈黙の15分（クォーター）'],
+      ['e', '2012-03-24', 'シーズン17 第651話', 'コナンVS平次 東西探偵推理勝負'],
+      ['m', '2012-04-14', 16, '11人目のストライカー'],
+      ['e', '2013-03-30', 'シーズン18 第693話', '隅田川夜桜ルート（後編）'],
+      ['m', '2013-04-20', 17, '絶海の探偵（プライベート・アイ）'],
+      ['e', '2014-03-29', 'シーズン19 第734話', 'ジョディの追憶とお花見の罠'],
+      ['m', '2014-04-19', 18, '異次元の狙撃手（スナイパー）'],
+      ['e', '2015-03-28', 'シーズン20 第773話', '工藤新一水族館事件（後編）'],
+      ['m', '2015-04-18', 19, '業火の向日葵'],
+      ['e', '2016-03-12', 'シーズン21 第812話', '県警の黒い闇（後編）'],
+      ['m', '2016-04-16', 20, '純黒の悪夢（ナイトメア）'],
+      ['e', '2017-03-25', 'シーズン22 第854話', 'サクラ組の思い出（新一BOY）'],
+      ['m', '2017-04-15', 21, 'から紅の恋歌（ラブレター）'],
+      ['e', '2018-04-07', 'シーズン23 第898話', 'ケーキが溶けた!'],
+      ['m', '2018-04-13', 22, 'ゼロの執行人'],
+      ['e', '2019-03-23', 'シーズン24 第935話', '占い師と三人の客'],
+      ['m', '2019-04-12', 23, '紺青の拳（フィスト）'],
+      ['e', '2021-03-13', 'シーズン26 第1001話', 'ピアノソナタ『月光』殺人事件（後編）'],
+      ['m', '2021-04-16', 24, '緋色の弾丸'],
+      ['e', '2022-03-12', 'シーズン27 第1038話', '警察学校編 Wild Police Story CASE.伊達航'],
+      ['m', '2022-04-15', 25, 'ハロウィンの花嫁'],
+      ['e', '2023-04-08', 'シーズン28 第1079話', '黒ずくめの謀略（正体）'],
+      ['m', '2023-04-14', 26, '黒鉄の魚影（サブマリン）'],
+      ['e', '2024-04-06', 'シーズン29 第1119話', '4人だけの同窓会'],
+      ['m', '2024-04-12', 27, '100万ドルの五稜星（みちしるべ）'],
+      ['e', '2025-04-12', 'シーズン30 第1158話', '探偵団と憧れの古民家'],
+      ['m', '2025-04-18', 28, '隻眼の残像（フラッシュバック）'],
+      ['e', '2026-04-04', 'シーズン31 第1196話', '館ミステリー 渦巻館（後編）'],
+      ['m', '2026-04-10', 29, 'ハイウェイの堕天使']
+    ];
+
+    function toObj(a) {
+      if (a[0] === 's') return { t: 's', d: a[1], title: a[2], sub: a[3] };
+      if (a[0] === 'e') return { t: 'e', d: a[1], no: a[2], title: a[3] };
+      return { t: 'm', d: a[1], n: a[2], title: a[3], feat: a[4] || '', alt: !!a[5], dl: a[6] || '' };
+    }
+    function esc(s) {
+      return String(s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+    function ymd(d) {
+      var p = d.split('-');
+      return +p[0] + '年' + (+p[1]) + '月' + (+p[2]) + '日';
+    }
+    function md(d) { return d.slice(5).replace('-', '.'); }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function hueOf(num) {
+      var n = parseInt(num, 10);
+      return isNaN(n) ? 40 : (n * 47) % 360;
+    }
+
+    // ratings from data/ratings.json, keyed by 'm-<date>' and 'e-<date>' per group
+    var RATE = { conan: {}, poke: {} };
+
+    function rateOf(key, item) {
+      var g = RATE[key] || {};
+      return g[(item.t === 'm' ? 'm-' : 'e-') + item.d] || null;
+    }
+    function rateLine(r) {
+      if (!r || !r.votes) return '評価なし';
+      return '★ ' + r.rating.toFixed(1) + ' <span class="votes">（' + r.votes + '票）</span>';
+    }
+
+    // modal
+    var dlg = document.getElementById('dlg');
+    var dlgBody = document.getElementById('dlgBody');
+    document.getElementById('dlgClose').addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+
+    function openModal(key, it, prevEp) {
+      var r = rateOf(key, it);
+      var isMovie = it.t === 'm';
+      var num = isMovie ? (typeof it.n === 'number' ? pad(it.n) : '—') : '';
+      var html = '';
+      if (isMovie) {
+        html += '<div class="dposter" id="dposter" style="--h:' + hueOf(num) + '"><span class="pn">' + num + '</span></div>';
+      }
+      html += '<div class="dinfo">';
+      html += '<div class="dtitle">' + esc(it.title) + '</div>';
+      if (isMovie) {
+        html += '<div class="drow"><b>公開日</b>　' + esc(it.dl || ymd(it.d)) + '</div>';
+        if (it.feat) html += '<div class="drow"><b>主なポケモン</b>　' + esc(it.feat) + '</div>';
+        if (prevEp) html += '<div class="drow"><b>直前に見る回</b>　' + esc(prevEp.no) + ' ' + esc(prevEp.title) + '</div>';
+        if (it.alt) html += '<div class="drow">別世界線の作品</div>';
+      } else {
+        html += '<div class="drow"><b>' + esc(it.no) + '</b></div>';
+        html += '<div class="drow"><b>放送日</b>　' + ymd(it.d) + '</div>';
+      }
+      if (r && r.votes) {
+        html += '<div class="drate">★ ' + r.rating.toFixed(1) + ' <small>' + r.votes + '票</small></div>';
+      } else {
+        html += '<div class="dnone">評価なし</div>';
+      }
+      html += '</div>';
+      dlgBody.innerHTML = html;
+
+      if (isMovie) {
+        var poster = document.getElementById('dposter');
+        var img = new Image();
+        img.alt = '';
+        img.onload = function () { poster.classList.add('has-img'); };
+        img.onerror = function () { img.remove(); };
+        img.src = 'img/' + key + '-' + num + '.jpg';
+        poster.appendChild(img);
+      }
+      dlg.showModal();
+    }
+
+    function renderTimeline(list, root, key) {
+      var items = list.map(toObj);
+      root.innerHTML = '';
+      var lastYear = null;
+      items.forEach(function (it, i) {
+        var y = it.d.slice(0, 4);
+        if (y !== lastYear) {
+          lastYear = y;
+          var yr = document.createElement('li');
+          yr.className = 'year';
+          yr.innerHTML = '<span class="yl">' + y + '</span><span></span><span class="yline"></span>';
+          root.appendChild(yr);
+        }
+        var li = document.createElement('li');
+        var prev = i > 0 && items[i - 1].t === 'e' ? items[i - 1] : null;
+        if (it.t === 's') {
+          li.className = 'row t-s';
+          li.innerHTML = '<span class="when">' + md(it.d) + '</span><span class="node"></span>' +
+            '<span class="body"><span class="stitle">' + esc(it.title) + '</span><span class="ssub">' + esc(it.sub) + '</span></span>';
+        } else if (it.t === 'e') {
+          li.className = 'row t-e';
+          var er = rateOf(key, it);
+          li.innerHTML = '<span class="when">' + md(it.d) + '</span><span class="node"></span>' +
+            '<span class="body eline" tabindex="0" role="button">' +
+              '<span class="eno">' + esc(it.no) + '</span>' +
+              '<span class="etitle">' + esc(it.title) + '</span>' +
+            '</span>';
+          var body = li.querySelector('.body');
+          body.addEventListener('click', function () { openModal(key, it, null); });
+          body.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(key, it, null); }
+          });
+        } else {
+          li.className = 'row t-m';
+          var num = typeof it.n === 'number' ? pad(it.n) : '—';
+          var mr = rateOf(key, it);
+          li.innerHTML = '<span class="when">' + md(it.d) + '</span><span class="node"></span>' +
+            '<div class="card" role="button" tabindex="0">' +
+              '<span class="poster" style="--h:' + hueOf(num) + '"><span class="pn">' + num + '</span><span class="py">' + it.d.slice(0, 4) + '</span></span>' +
+              '<span class="info">' +
+                '<span class="mtitle">' + (typeof it.n === 'number' ? '<span class="mnum">' + num + '</span>' : '') + esc(it.title) + '</span>' +
+                (it.alt ? '<span class="alt-note">別世界線の作品</span>' : '') +
+              '</span>' +
+            '</div>';
+          var card = li.querySelector('.card');
+          var poster = li.querySelector('.poster');
+          var img = new Image();
+          img.alt = '';
+          img.onload = function () { poster.classList.add('has-img'); };
+          img.onerror = function () { img.remove(); };
+          img.src = 'img/' + key + '-' + num + '.jpg';
+          poster.appendChild(img);
+          card.addEventListener('click', function () { openModal(key, it, prev); });
+          card.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(key, it, prev); }
+          });
+        }
+        root.appendChild(li);
+      });
+    }
+
+    // 映画だけ: hide episodes and series, then hide years that have no movie left
+    function movieOnly(root, on) {
+      root.querySelectorAll('.row.t-e, .row.t-s').forEach(function (r) { r.classList.toggle('hidden', on); });
+      root.querySelectorAll('.year').forEach(function (y) {
+        var show = false;
+        var n = y.nextElementSibling;
+        while (n && !n.classList.contains('year')) {
+          if (n.classList.contains('t-m') && !n.classList.contains('hidden')) show = true;
+          n = n.nextElementSibling;
+        }
+        y.classList.toggle('hidden', on && !show);
+      });
+    }
+
+    function bindToggle(btn, fn) {
+      btn.addEventListener('click', function () {
+        var on = btn.getAttribute('aria-pressed') !== 'true';
+        btn.setAttribute('aria-pressed', String(on));
+        btn.classList.toggle('on', on);
+        fn(on);
+      });
+    }
+
+    // slide the gold pill under the selected tab
+    function moveIndicator(tab) {
+      var ind = document.getElementById('tabInd');
+      if (!ind || !tab) return;
+      ind.style.left = tab.offsetLeft + 'px';
+      ind.style.width = tab.offsetWidth + 'px';
+    }
+
+    function init() {
+      // tabs
+      var tabs = document.querySelectorAll('.tab');
+      var panels = { 'tab-pokemon': document.getElementById('panel-pokemon'), 'tab-conan': document.getElementById('panel-conan') };
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          tabs.forEach(function (t) {
+            var sel = t === tab;
+            t.setAttribute('aria-selected', String(sel));
+            panels[t.id].classList.toggle('hidden', !sel);
+            if (sel) moveIndicator(t);
+          });
+        });
+      });
+
+      // Pokémon: table or timeline
+      var pokeTL = document.getElementById('pokeTimeline');
+      var tableView = document.getElementById('tableView');
+      var viewTable = document.getElementById('viewTable');
+      var viewTimeline = document.getElementById('viewTimeline');
+      var pokeMovieBtn = document.getElementById('pokeMovieOnly');
+      var altBtn = document.getElementById('altToggle');
+      var pokeNote = document.getElementById('pokeNote');
+
+      function showPokeView(table) {
+        viewTable.classList.toggle('on', table);
+        viewTimeline.classList.toggle('on', !table);
+        viewTable.setAttribute('aria-pressed', String(table));
+        viewTimeline.setAttribute('aria-pressed', String(!table));
+        tableView.classList.toggle('hidden', !table);
+        pokeTL.classList.toggle('hidden', table);
+        pokeMovieBtn.classList.toggle('hidden', table);
+        pokeNote.classList.toggle('hidden', table);
+        altBtn.classList.toggle('hidden', !table);
+      }
+      viewTable.addEventListener('click', function () { showPokeView(true); });
+      viewTimeline.addEventListener('click', function () { showPokeView(false); });
+
+      var movieRows = document.getElementById('movieRows');
+      movieRows.innerHTML = POKE.map(toObj).filter(function (m) { return m.t === 'm'; }).map(function (m) {
+        var r = rateOf('poke', m);
+        return '<tr class="' + (m.alt ? 'alt' : '') + '"' + (m.alt ? ' data-alt="1"' : '') + '>' +
+          '<td class="num">' + (typeof m.n === 'number' ? m.n : '—') + '</td>' +
+          '<td class="date">' + esc(m.dl || ymd(m.d)) + '</td>' +
+          '<td>' + esc(m.title) + (m.alt ? '<span class="badge">別世界線</span>' : '') + '</td>' +
+          '<td>' + esc(m.feat) + '</td>' +
+          '<td class="rate">' + (r && r.votes ? '★ ' + r.rating.toFixed(1) : '—') + '</td></tr>';
+      }).join('');
+
+      altBtn.addEventListener('click', function () {
+        var on = altBtn.getAttribute('aria-pressed') !== 'true';
+        altBtn.setAttribute('aria-pressed', String(on));
+        altBtn.classList.toggle('on', on);
+        movieRows.querySelectorAll('tr').forEach(function (row) {
+          row.classList.toggle('hidden', on && !row.hasAttribute('data-alt'));
+        });
+      });
+
+      renderTimeline(POKE, pokeTL, 'poke');
+      bindToggle(pokeMovieBtn, function (on) { movieOnly(pokeTL, on); });
+      showPokeView(true);
+
+      // Conan timeline
+      var conanTL = document.getElementById('conanTimeline');
+      renderTimeline(CONAN, conanTL, 'conan');
+      bindToggle(document.getElementById('conanMovieOnly'), function (on) { movieOnly(conanTL, on); });
+      moveIndicator(document.querySelector('.tab[aria-selected="true"]'));
+    }
+
+    // load ratings, then build the page; if the file is missing, build without ratings
+    fetch('data/ratings.json')
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .catch(function () { return {}; })
+      .then(function (data) {
+        RATE = Object.assign({ conan: {}, poke: {} }, data);
+        init();
+      });
+  })();
+</script>
+<script>
+  // watched-up-to episode: saved on this device only; empty = no spoiler lock
+  (function () {
+    var KEY = 'konan-progress', ALL = 1218;
+    window.konanProgress = function () {
+      try { var v = parseInt(localStorage.getItem(KEY), 10); return v > 0 ? v : ALL; } catch (e) { return ALL; }
+    };
+    var input = document.getElementById('progInput');
+    if (!input) return;
+    input.value = window.konanProgress() >= ALL ? '' : window.konanProgress();
+    input.addEventListener('change', function () {
+      var v = parseInt(input.value, 10);
+      try { if (v > 0) localStorage.setItem(KEY, String(Math.min(v, ALL))); else localStorage.removeItem(KEY); } catch (e) {}
+      location.reload();
+    });
+  })();
+</script>
+</body>
+</html>
