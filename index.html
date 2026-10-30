@@ -589,6 +589,9 @@
   }
   /* stats-free timeline: the 映画だけ buttons are hidden */
   #pokeMovieOnly, #conanMovieOnly { display: none !important; }
+  /* watched-up-to picker in the nav */
+  .prog { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #8189a0; white-space: nowrap; }
+  .prog input { width: 70px; padding: 4px 6px; background: #10131c; color: #ece7dc; border: 1px solid #232939; border-radius: 6px; font: inherit; }
 </style>
 </head>
 <body>
@@ -601,6 +604,7 @@
       <a href="stats.html">統計</a>
       <a href="songs.html">主題歌</a>
     </div>
+    <label class="prog">見た話 <input type="number" id="progInput" min="1" max="1218" inputmode="numeric" placeholder="全部"> 話まで</label>
   </nav>
 <div class="wrap">
 
@@ -863,6 +867,7 @@
       root.innerHTML = '';
       var lastYear = null;
       items.forEach(function (it, i) {
+        if (key === 'conan' && it.d > CUT) return; // after the watched-up-to episode
         var y = it.d.slice(0, 4);
         if (y !== lastYear) {
           lastYear = y;
@@ -1020,9 +1025,17 @@
     }
 
     // load ratings, then build the page; if the file is missing, build without ratings
-    fetch('data/ratings.json')
-      .then(function (r) { return r.ok ? r.json() : {}; })
-      .catch(function () { return {}; })
+    // the Konan list stops at the watched-up-to episode (its air date is the cut-off)
+    var CUT = '9999-12-31';
+    fetch('data/episodes.json')
+      .then(function (r) { return r.ok ? r.json() : { conan: [] }; })
+      .catch(function () { return { conan: [] }; })
+      .then(function (eps) {
+        var P = window.konanProgress();
+        var ep = (eps.conan || []).filter(function (e) { return e.e === P && e.s !== 0; })[0];
+        if (ep && ep.air && P < 1218) CUT = ep.air;
+        return fetch('data/ratings.json').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; });
+      })
       .then(function (data) {
         RATE = Object.assign({ conan: {}, poke: {} }, data);
         init();
@@ -1031,5 +1044,22 @@
 </script>
 <script>if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js"); }</script>
 <script>if (/^(localhost|127[.]0[.]0[.]1)$/.test(location.hostname)) { var last = null; setInterval(function () { var f = location.pathname.endsWith('/') ? 'index.html' : location.pathname.split('/').pop(); fetch(f, { method: 'HEAD', cache: 'no-store' }).then(function (r) { var m = r.headers.get('last-modified'); if (last && m !== last) location.reload(); last = m; }).catch(function () {}); }, 1000); }</script>
+<script>
+  // watched-up-to episode: saved on this device only; empty = no spoiler lock
+  (function () {
+    var KEY = 'konan-progress', ALL = 1218;
+    window.konanProgress = function () {
+      try { var v = parseInt(localStorage.getItem(KEY), 10); return v > 0 ? v : ALL; } catch (e) { return ALL; }
+    };
+    var input = document.getElementById('progInput');
+    if (!input) return;
+    input.value = window.konanProgress() >= ALL ? '' : window.konanProgress();
+    input.addEventListener('change', function () {
+      var v = parseInt(input.value, 10);
+      try { if (v > 0) localStorage.setItem(KEY, String(Math.min(v, ALL))); else localStorage.removeItem(KEY); } catch (e) {}
+      location.reload();
+    });
+  })();
+</script>
 </body>
 </html>

@@ -177,6 +177,9 @@
     outline: 2px solid #d6a24a;
     outline-offset: 2px;
   }
+  /* watched-up-to picker in the nav */
+  .prog { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #8189a0; white-space: nowrap; }
+  .prog input { width: 70px; padding: 4px 6px; background: #10131c; color: #ece7dc; border: 1px solid #232939; border-radius: 6px; font: inherit; }
 </style>
 </head>
 <body>
@@ -189,6 +192,7 @@
       <a href="stats.html">統計</a>
       <a href="songs.html" class="current" aria-current="page">主題歌</a>
     </div>
+    <label class="prog">見た話 <input type="number" id="progInput" min="1" max="1218" inputmode="numeric" placeholder="全部"> 話まで</label>
   </nav>
 <div class="wrap">
 
@@ -234,7 +238,7 @@
       }
 
       // every song in broadcast order (by its first episode, openings first on a tie)
-      var rows = songs.slice().sort(function (a, b) {
+      var rows = songs.filter(function (s) { return s.f <= window.konanProgress(); }).sort(function (a, b) {
         return a.f - b.f || (a.k === 'op' ? -1 : 1);
       });
 
@@ -260,5 +264,22 @@
   })();
 </script>
 <script>if (/^(localhost|127[.]0[.]0[.]1)$/.test(location.hostname)) { var last = null; setInterval(function () { var f = location.pathname.endsWith('/') ? 'index.html' : location.pathname.split('/').pop(); fetch(f, { method: 'HEAD', cache: 'no-store' }).then(function (r) { var m = r.headers.get('last-modified'); if (last && m !== last) location.reload(); last = m; }).catch(function () {}); }, 1000); }</script>
+<script>
+  // watched-up-to episode: saved on this device only; empty = no spoiler lock
+  (function () {
+    var KEY = 'konan-progress', ALL = 1218;
+    window.konanProgress = function () {
+      try { var v = parseInt(localStorage.getItem(KEY), 10); return v > 0 ? v : ALL; } catch (e) { return ALL; }
+    };
+    var input = document.getElementById('progInput');
+    if (!input) return;
+    input.value = window.konanProgress() >= ALL ? '' : window.konanProgress();
+    input.addEventListener('change', function () {
+      var v = parseInt(input.value, 10);
+      try { if (v > 0) localStorage.setItem(KEY, String(Math.min(v, ALL))); else localStorage.removeItem(KEY); } catch (e) {}
+      location.reload();
+    });
+  })();
+</script>
 </body>
 </html>

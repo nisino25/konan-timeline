@@ -137,7 +137,16 @@
     grid-template-columns: repeat(10, minmax(0, 1fr));
     gap: 6px;
   }
+  .cell.locked { background: #0e1017; color: transparent; cursor: default; }
+  .cell.locked::after { content: "?"; color: #2a2f3e; font-size: 0.9rem; }
   .cell.filler { opacity: 0.45; }
+  /* the episode you are on pulses */
+  .cell.current { animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(242, 193, 78, 0.6); }
+    50% { box-shadow: 0 0 0 7px rgba(242, 193, 78, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) { .cell.current { animation: none; outline: 2px solid #f2c14e; } }
   .cell.canon::after {
     content: "★";
     position: absolute;
@@ -196,6 +205,23 @@
   .detail .dr { color: var(--gold); font-variant-numeric: tabular-nums; }
   .detail .dr small { color: var(--mute); }
   .note { color: var(--faint); font-size: 0.8rem; margin-top: 16px; }
+  .openbar { display: flex; gap: 8px; justify-content: flex-end; margin: 0 0 12px; }
+  .openbar button {
+    font: inherit;
+    font-size: 0.8rem;
+    color: #8189a0;
+    background: transparent;
+    border: 1px solid #232939;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .openbar button:hover { color: #ece7dc; }
+  .season .shead { cursor: pointer; }
+  .season .shead::after { content: "▾"; margin-left: auto; color: #8189a0; }
+  .season.closed .shead::after { content: "▸"; }
+  .season.closed .grid { display: none; }
+  .season.closed { padding-bottom: 6px; }
   .msg { color: var(--mute); padding: 20px 0; }
 
   .yt {
@@ -329,6 +355,9 @@
     outline: 2px solid #d6a24a;
     outline-offset: 2px;
   }
+  /* watched-up-to picker in the nav */
+  .prog { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #8189a0; white-space: nowrap; }
+  .prog input { width: 70px; padding: 4px 6px; background: #10131c; color: #ece7dc; border: 1px solid #232939; border-radius: 6px; font: inherit; }
 </style>
 </head>
 <body>
@@ -341,13 +370,13 @@
       <a href="stats.html">統計</a>
       <a href="songs.html">主題歌</a>
     </div>
+    <label class="prog">見た話 <input type="number" id="progInput" min="1" max="1218" inputmode="numeric" placeholder="全部"> 話まで</label>
   </nav>
 <div class="wrap">
 
   <header>
     <div>
       <h1>名探偵コナン 評価</h1>
-      <p class="sub">シーズンごとに並べています。1行は10話で、数字が評価です。</p>
     </div>
   </header>
 
@@ -358,10 +387,13 @@
       <div class="scale-labels"><span>6</span><span>8</span><span>10</span></div>
     </div>
     <span><span class="swatch"></span>評価なし</span>
-    <span>★ 原作どおりの話（フィラーではない） ・ 薄い＝フィラー</span>
-    <span>金枠は各シーズンの最高評価</span>
+    <span style="white-space: nowrap">★ 原作どおり ・ 薄い＝フィラー ・ 金枠＝シーズン最高</span>
   </div>
 
+  <div class="openbar">
+    <button type="button" id="openCur">今のシーズンだけ</button>
+    <button type="button" id="openAll">すべて開く</button>
+  </div>
   <div id="map"><p class="msg">読み込み中…</p></div>
 
 <dialog id="dlg">
@@ -469,6 +501,8 @@
       var section = document.createElement('section');
       section.className = 'season';
       section.style.setProperty('--hue', hue);
+      section.dataset.s = s;
+      if (s !== seasonOf(window.konanProgress())) section.classList.add('closed');
 
       var avgHtml = avg === null
         ? '<span class="sa">評価なし</span>'
@@ -481,6 +515,7 @@
           avgHtml +
         '</div>';
 
+      section.querySelector('.shead').addEventListener('click', function () { section.classList.toggle('closed'); });
       var grid = document.createElement('div');
       grid.className = 'grid';
       // empty spacers so each episode sits in the column of its real number (ep 43 is column 4)
@@ -492,6 +527,7 @@
         var cell = document.createElement('button');
         cell.type = 'button';
         cell.className = 'cell';
+        if (n === window.konanProgress()) cell.classList.add('current');
         if (!e) {
           cell.classList.add('empty');
           cell.disabled = true;
@@ -547,6 +583,13 @@
       });
     }
 
+    document.getElementById('openAll').addEventListener('click', function () {
+      document.querySelectorAll('.season').forEach(function (s) { s.classList.remove('closed'); });
+    });
+    document.getElementById('openCur').addEventListener('click', function () {
+      var cur = seasonOf(window.konanProgress());
+      document.querySelectorAll('.season').forEach(function (s) { s.classList.toggle('closed', Number(s.dataset.s) !== cur); });
+    });
     fetch('data/episodes.json')
       .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
       .then(render)
@@ -556,5 +599,22 @@
   })();
 </script>
 <script>if (/^(localhost|127[.]0[.]0[.]1)$/.test(location.hostname)) { var last = null; setInterval(function () { var f = location.pathname.endsWith('/') ? 'index.html' : location.pathname.split('/').pop(); fetch(f, { method: 'HEAD', cache: 'no-store' }).then(function (r) { var m = r.headers.get('last-modified'); if (last && m !== last) location.reload(); last = m; }).catch(function () {}); }, 1000); }</script>
+<script>
+  // watched-up-to episode: saved on this device only; empty = no spoiler lock
+  (function () {
+    var KEY = 'konan-progress', ALL = 1218;
+    window.konanProgress = function () {
+      try { var v = parseInt(localStorage.getItem(KEY), 10); return v > 0 ? v : ALL; } catch (e) { return ALL; }
+    };
+    var input = document.getElementById('progInput');
+    if (!input) return;
+    input.value = window.konanProgress() >= ALL ? '' : window.konanProgress();
+    input.addEventListener('change', function () {
+      var v = parseInt(input.value, 10);
+      try { if (v > 0) localStorage.setItem(KEY, String(Math.min(v, ALL))); else localStorage.removeItem(KEY); } catch (e) {}
+      location.reload();
+    });
+  })();
+</script>
 </body>
 </html>
