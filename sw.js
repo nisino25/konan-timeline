@@ -4,7 +4,6 @@ const CACHE = 'conan-timeline-v4';
 const SHELL = [
   './',
   './index.html',
-  './relationships.html',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -12,6 +11,8 @@ const SHELL = [
   './ratings.html',
   './songs.html',
   './stats.html',
+  './tiers.html',
+  './data/tiers.json',
   './data/episodes.json',
   './data/songs.json',
   './data/ratings.json',

@@ -170,6 +170,8 @@
     margin-top: 14px;
   }
   .hidden { display: none !important; }
+  /* the next episode and next movie after the watched-up-to episode */
+  .row.next .body, .row.next .card { outline: 2px solid #d6a24a; outline-offset: 3px; }
 
   /* table view */
   .tbl {
@@ -599,8 +601,8 @@
     <a class="brand" href="index.html">Konan</a>
     <div class="site-links">
       <a href="index.html" class="current" aria-current="page">年表</a>
-      <a href="relationships.html">相関図</a>
       <a href="ratings.html">評価</a>
+      <a href="tiers.html">見どころ</a>
       <a href="stats.html">統計</a>
       <a href="songs.html">主題歌</a>
     </div>
@@ -923,6 +925,29 @@
       });
     }
 
+    // Conan: with a watched-up-to episode, mark the next episode and the next movie, then scroll to them
+    function epNoOf(it) { var m = /第(\d+)話/.exec(it.no || ''); return m ? +m[1] : 0; }
+    function markNext(root, list) {
+      var p = window.konanProgress();
+      var rows = root.querySelectorAll('.row');
+      var lastEp = 0, gotEp = false, gotMovie = false;
+      list.map(toObj).forEach(function (it, i) {
+        if (it.t === 'e') {
+          lastEp = epNoOf(it);
+          if (!gotEp && lastEp > p) { gotEp = true; rows[i].classList.add('next'); }
+        } else if (it.t === 'm' && !gotMovie && lastEp > p) {
+          gotMovie = true; rows[i].classList.add('next');
+        }
+      });
+    }
+    function scrollToNext(root) {
+      var t = root && root.querySelector('.row.next:not(.hidden)');
+      if (!t) return;
+      var nav = document.querySelector('.site-nav');
+      var top = t.getBoundingClientRect().top + window.pageYOffset - (nav ? nav.offsetHeight : 0) - 12;
+      window.scrollTo(0, Math.max(0, top));
+    }
+
     // 映画だけ: hide episodes and series, then hide years that have no movie left
     function movieOnly(root, on) {
       root.querySelectorAll('.row.t-e, .row.t-s').forEach(function (r) { r.classList.toggle('hidden', on); });
@@ -965,6 +990,7 @@
             t.setAttribute('aria-selected', String(sel));
             panels[t.id].classList.toggle('hidden', !sel);
             if (sel) moveIndicator(t);
+            if (sel && t.id === 'tab-conan') scrollToNext(document.getElementById('conanTimeline'));
           });
         });
       });
@@ -1019,8 +1045,10 @@
       // Conan timeline
       var conanTL = document.getElementById('conanTimeline');
       renderTimeline(CONAN, conanTL, 'conan');
+      markNext(conanTL, CONAN);
       bindToggle(document.getElementById('conanMovieOnly'), function (on) { movieOnly(conanTL, on); });
       moveIndicator(document.querySelector('.tab[aria-selected="true"]'));
+      if (document.querySelector('#tab-conan[aria-selected="true"]')) scrollToNext(conanTL);
     }
 
     // load ratings, then build the page; if the file is missing, build without ratings

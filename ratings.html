@@ -175,6 +175,12 @@
     font-size: 0.6rem;
     color: #f2c14e;
   }
+  /* tier from the must-watch lists: a bar along the bottom edge (legend shows the colours) */
+  .tier { position: absolute; left: 4px; right: 4px; bottom: 2px; height: 3px; border-radius: 2px; }
+  .tier.t1, .tierkey i.t1 { background: #f2c14e; }
+  .tier.t2, .tierkey i.t2 { background: #6fb3d9; }
+  .tier.t3, .tierkey i.t3 { background: #ff4a4a; }
+  .tierkey i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin: 0 4px 0 8px; }
   .cell .no {
     position: absolute;
     top: 2px;
@@ -385,8 +391,8 @@
     <a class="brand" href="index.html">Konan</a>
     <div class="site-links">
       <a href="index.html">年表</a>
-      <a href="relationships.html">相関図</a>
       <a href="ratings.html" class="current" aria-current="page">評価</a>
+      <a href="tiers.html">見どころ</a>
       <a href="stats.html">統計</a>
       <a href="songs.html">主題歌</a>
     </div>
@@ -404,10 +410,11 @@
     <span>評価</span>
     <div>
       <div class="scale"></div>
-      <div class="scale-labels"><span>6</span><span>8</span><span>10</span></div>
+      <div class="scale-labels"><span>6</span><span>7.5</span><span>9</span></div>
     </div>
     <span><span class="swatch"></span>評価なし</span>
     <span style="white-space: nowrap">★ 原作 ・ 薄い＝フィラー/票少 ・ 金枠＝最高 ・ 白枠＝今</span>
+    <span class="tierkey" style="white-space: nowrap">下線<i class="t1"></i>tier1<i class="t2"></i>tier2<i class="t3"></i>tier3</span>
   </div>
 
   <div class="openbar">
@@ -421,7 +428,7 @@
   <div class="dlg-in" id="dlgBody"></div>
 </dialog>
 
-  <p class="note">評価が3票未満のマスは薄く表示しています。This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+  <p class="note">評価は IMDb の点数です。票数が30未満のマスは薄く表示し、IMDb に評価がない話は「評価なし」です。IMDb の評価は非商用の個人利用データを使用しています。This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
 </div>
 
 <script>
@@ -430,8 +437,8 @@
     var STARTS = [1, 43, 86, 129, 174, 219, 263, 304, 345, 384, 425, 460, 491, 521, 562, 602, 642, 681, 724, 763, 804, 845, 887, 927, 965, 993, 1033, 1068, 1109, 1148, 1187];
     var NEUTRAL = [34, 38, 52], HOT = [255, 88, 64], COOL = [70, 150, 220];
     // one colour scale for every season: 8 is neutral, 6 is cool, 10 is hot
-    var CENTER = 8;
-    var SPAN = 2;
+    var CENTER = 7.5;
+    var SPAN = 1.5;
 
     // filler episodes from the Quick Filler Guide on quotetheanime.com (2022 list, covers up to episode 1023)
     var FILLER_LIST = '6,14,17,19,21,24-26,29-30,33,36-37,41,44-45,47,51,53,55-56,59,61-62,64-67,71,73-74,79-80,83,87-90,92-95,97,106-109,111-112,119-120,123-127,135,140,143,148-152,155,158-161,165,169,175,179-187,196-198,201-204,207-211,214-216,225,232,235-237,245,248,251-252,255-257,260-262,264-265,273,276,281-283,294-300,303,314-315,318-322,328,337,342,348-349,352-353,357,360,363-365,368-370,373,376-380,384,388-389,392-393,397,403-405,409-410,413-414,418-420,423-424,426,433-434,437,439-442,448,450-452,456,459,461,468,471,475,478,480,483,486,489,512,518-520,527,536,539-541,544,547-548,553-556,562,565-567,570,577,582,588,591,594-596,599,602-607,629-631,634-641,658,663-666,669-670,677-680,686-689,692-698,707-709,716-721,726,729-730,733,735-737,742-743,750,753,757-758,761-762,767-769,774-778,784,789-791,794-807,813,816-821,824-826,829,833-835,838-842,845-846,851-852,855-860,865,868-871,875-877,880,883-884,891-893,898-900,903-908,911-915,918,921-924,929-940,943-951,955-970,975-982,985-992,996-999,1002,1006-1010,1013-1017,1021-1023';
@@ -495,7 +502,7 @@
       if (e.votes) {
         var diff = e.rating - avg;
         body += '<div class="mbig">★ ' + e.rating.toFixed(1) + '</div>';
-        body += '<div class="mvotes">' + e.votes + '票' + (e.votes < 3 ? '（参考値）' : '') + '</div>';
+        body += '<div class="mvotes">' + e.votes + '票' + (e.votes < 30 ? '（参考値）' : '') + '</div>';
         body += '<div class="mrows">' +
           row('シーズン平均', avg.toFixed(2)) +
           row('平均との差', (diff >= 0 ? '+' : '') + diff.toFixed(2)) +
@@ -560,7 +567,7 @@
           var c = colorOf(e.rating - CENTER);
           cell.style.background = c.bg;
           cell.style.color = c.fg;
-          if (e.votes < 3) cell.classList.add('few');
+          if (e.votes < 30) cell.classList.add('few');
           if (e.rating === maxR) cell.classList.add('top');
           cell.textContent = e.rating.toFixed(1);
           cell.title = e.e + ' ' + e.name + '　★' + e.rating.toFixed(1) + '（' + e.votes + '票・平均との差 ' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + '）';
@@ -574,6 +581,13 @@
           no.className = 'no';
           no.textContent = n;
           cell.appendChild(no);
+          var tr = TIER[n];
+          if (tr) {
+            var bar = document.createElement('span');
+            bar.className = 'tier t' + tr;
+            cell.appendChild(bar);
+            cell.title += '　tier' + tr;
+          }
           (function (ep, el) {
             el.addEventListener('click', function () { show(ep, el, s, list); });
           })(e, cell);
@@ -610,9 +624,13 @@
       var cur = seasonOf(window.konanProgress());
       document.querySelectorAll('.season').forEach(function (s) { s.classList.toggle('closed', Number(s.dataset.s) !== cur); });
     });
-    fetch('data/episodes.json')
-      .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
-      .then(render)
+    // tier per episode (from the must-watch lists); missing file = no tiers
+    var TIER = {};
+    Promise.all([
+      fetch('data/episodes.json').then(function (r) { if (!r.ok) throw new Error(); return r.json(); }),
+      fetch('data/tiers.json').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })
+    ])
+      .then(function (res) { TIER = res[1]; render(res[0]); })
       .catch(function () {
         document.getElementById('map').innerHTML = '<p class="msg">評価データが読み込めませんでした。</p>';
       });
