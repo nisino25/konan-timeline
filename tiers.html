@@ -90,6 +90,11 @@
   .tg.t1 { background: var(--t1); }
   .tg.t2 { background: var(--t2); }
   .tg.t3 { background: var(--t3); color: #fff; }
+  /* the first episode after the one you are on */
+  .ep.next { outline: 2px solid var(--gold); outline-offset: 3px; }
+  /* watched-up-to picker in the nav */
+  .prog { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #8189a0; white-space: nowrap; }
+  .prog input { width: 70px; padding: 4px 6px; background: #10131c; color: #ece7dc; border: 1px solid #232939; border-radius: 6px; font: inherit; font-size: 16px; }
   .air { color: var(--faint); font-size: 0.78rem; white-space: nowrap; }
   .msg { color: var(--mute); padding: 20px 0; }
   .note { color: var(--faint); font-size: 0.8rem; margin-top: 22px; }
@@ -152,6 +157,7 @@
       <a href="stats.html">統計</a>
       <a href="songs.html">主題歌</a>
     </div>
+    <label class="prog">見た話 <input type="number" id="progInput" min="1" max="1218" inputmode="numeric" placeholder="全部"> 話まで</label>
   </nav>
 <div class="wrap">
 
@@ -195,8 +201,8 @@
         if (e && lists[tiers[n]]) lists[tiers[n]].push(e);
       });
       Object.keys(lists).forEach(function (t) { lists[t].sort(function (a, b) { return a.e - b.e; }); });
-      // all: every tagged episode in broadcast order, each keeping its own tier colour
-      lists.all = lists[1].concat(lists[2], lists[3]).sort(function (a, b) { return a.e - b.e; });
+      // all: tier2 and tier3 episodes in broadcast order, each keeping its own tier colour
+      lists.all = lists[2].concat(lists[3]).sort(function (a, b) { return a.e - b.e; });
 
       var list = document.getElementById('list');
       var count = document.getElementById('count');
@@ -208,7 +214,7 @@
           var y = (e.air || '').slice(0, 4) || '—';
           if (y !== year) { year = y; html += '<div class="year">' + y + '</div>'; }
           var tt = t === 'all' ? tiers[e.e] : t;
-          html += '<div class="ep t' + tt + '">' +
+          html += '<div class="ep t' + tt + '" data-e="' + e.e + '">' +
             '<span class="no">第' + e.e + '話</span>' +
             '<span class="name">' + esc(e.name) + '<span class="tg t' + tt + '">tier' + tt + '</span></span>' +
             '<span class="air">' + esc(e.air) + '</span>' +
@@ -216,6 +222,17 @@
         });
         list.innerHTML = html || '<p class="msg">まだありません。</p>';
         count.textContent = lists[t].length + '話';
+
+        // scroll to the first episode after the one you are on (if a progress is set)
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        var cur = window.konanProgress();
+        var up = Array.prototype.find.call(list.querySelectorAll('.ep'), function (r) { return +r.dataset.e > cur; });
+        if (up) {
+          up.classList.add('next');
+          var nav = document.querySelector('.site-nav');
+          var top = up.getBoundingClientRect().top + window.pageYOffset - (nav ? nav.offsetHeight : 0) - 12;
+          window.scrollTo(0, Math.max(0, top));
+        }
       }
 
       document.querySelectorAll('.tiers button').forEach(function (btn) {
@@ -229,6 +246,23 @@
       show('all');
     }).catch(function () {
       document.getElementById('list').innerHTML = '<p class="msg">データが読み込めませんでした。</p>';
+    });
+  })();
+</script>
+<script>
+  // watched-up-to episode: saved on this device only; empty = no spoiler lock
+  (function () {
+    var KEY = 'konan-progress', ALL = 1218;
+    window.konanProgress = function () {
+      try { var v = parseInt(localStorage.getItem(KEY), 10); return v > 0 ? v : ALL; } catch (e) { return ALL; }
+    };
+    var input = document.getElementById('progInput');
+    if (!input) return;
+    input.value = window.konanProgress() >= ALL ? '' : window.konanProgress();
+    input.addEventListener('change', function () {
+      var v = parseInt(input.value, 10);
+      try { if (v > 0) localStorage.setItem(KEY, String(Math.min(v, ALL))); else localStorage.removeItem(KEY); } catch (e) {}
+      location.reload();
     });
   })();
 </script>
