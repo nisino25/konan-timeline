@@ -13,6 +13,8 @@ const SHELL = [
   './stats.html',
   './tiers.html',
   './data/tiers.json',
+  './words.html',
+  './data/words.json',
   './data/episodes.json',
   './data/songs.json',
   './data/ratings.json',

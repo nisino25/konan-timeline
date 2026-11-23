@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0d13">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>名探偵コナン 単語</title>
+<style>
+  :root {
+    --bg: #0b0d13;
+    --panel: #10131c;
+    --ink: #ece7dc;
+    --mute: #8189a0;
+    --faint: #4a5167;
+    --line: #232939;
+    --gold: #d6a24a;
+    --gold-hi: #e6b860;
+    --good: #6fb3d9;
+    --again: #ff4a4a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px 72px; }
+  h1 {
+    margin: 26px 0 4px;
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+  }
+
+  /* deck and direction choices */
+  .choices { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+  .chip {
+    font: inherit;
+    font-size: 0.84rem;
+    padding: 7px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--mute);
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { color: #1a1410; background: linear-gradient(180deg, var(--gold-hi), var(--gold)); border-color: transparent; font-weight: 600; }
+  .chip small { opacity: 0.75; margin-left: 4px; }
+  .chip:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .status { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--mute); font-size: 0.82rem; margin: 10px 0 12px; flex-wrap: wrap; }
+  .status select { font: inherit; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; font-size: 16px; }
+  .bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; margin-bottom: 14px; }
+  .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-hi)); width: 0; transition: width 0.3s ease; }
+
+  /* the card */
+  .card {
+    min-height: 320px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--panel);
+    padding: 28px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 18px 40px -26px rgba(0, 0, 0, 0.9);
+  }
+  .deckname { font-size: 0.74rem; color: var(--faint); letter-spacing: 0.08em; }
+  .front { margin-top: 26px; font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif; font-size: 2.4rem; line-height: 1.3; word-break: keep-all; }
+  .front rt { font-size: 0.8rem; color: var(--mute); font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  .front.en { font-size: 1.9rem; font-family: inherit; }
+  .back { margin-top: 22px; width: 100%; border-top: 1px dashed var(--line); padding-top: 18px; }
+  .en-main { font-size: 1.35rem; font-weight: 600; color: var(--gold-hi); }
+  .ex { margin-top: 14px; font-size: 0.98rem; }
+  .ex-en { margin-top: 4px; font-size: 0.82rem; color: var(--mute); }
+  .say {
+    margin-top: 14px;
+    font: inherit;
+    font-size: 0.82rem;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--mute);
+    cursor: pointer;
+  }
+  .flip-hint { margin-top: auto; padding-top: 22px; color: var(--faint); font-size: 0.8rem; }
+
+  .flip {
+    width: 100%;
+    margin-top: 16px;
+    font: inherit;
+    font-size: 1rem;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold-hi);
+    cursor: pointer;
+  }
+
+  /* answer buttons, each with the next interval */
+  .answers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px; }
+  .answers button {
+    font: inherit;
+    padding: 10px 4px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    cursor: pointer;
+    line-height: 1.25;
+  }
+  .answers button span { display: block; font-size: 0.72rem; color: var(--mute); margin-top: 2px; }
+  .answers .a1 { border-color: rgba(255, 74, 74, 0.5); }
+  .answers .a1 b { color: var(--again); }
+  .answers .a2 b { color: var(--gold-hi); }
+  .answers .a3 b { color: var(--good); }
+  .answers .a4 b { color: #8fd694; }
+  .answers b { font-weight: 600; font-size: 0.92rem; }
+
+  .done { text-align: center; padding: 40px 10px; color: var(--mute); }
+  .done strong { display: block; color: var(--gold-hi); font-size: 1.2rem; margin-bottom: 8px; font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif; }
+  .foot { margin-top: 26px; display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--faint); font-size: 0.78rem; flex-wrap: wrap; }
+  .reset { font: inherit; font-size: 0.78rem; background: transparent; border: 0; color: var(--faint); cursor: pointer; text-decoration: underline; }
+  .note { color: var(--faint); font-size: 0.8rem; margin-top: 22px; }
+
+  /* list view */
+  .list { list-style: none; margin: 0; padding: 0; }
+  .word {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: start;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    margin-bottom: 6px;
+  }
+  .w-ja { font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif; font-size: 1.15rem; margin-right: 10px; }
+  .w-ja rt { font-size: 0.6rem; color: var(--mute); font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  .w-en { color: var(--gold-hi); font-size: 0.92rem; }
+  .w-ex { color: var(--mute); font-size: 0.8rem; margin-top: 3px; }
+  .w-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 0.74rem; color: var(--faint); white-space: nowrap; }
+  .st { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; border: 1px solid var(--line); color: var(--mute); }
+  .st.new { color: var(--mute); }
+  .st.learn { color: var(--good); border-color: rgba(111, 179, 217, 0.4); }
+  .st.done { color: #8fd694; border-color: rgba(143, 214, 148, 0.4); }
+  .st.unsure { color: #ffb86b; border-color: rgba(255, 184, 107, 0.45); }
+  .fl { display: flex; gap: 6px; margin-top: 4px; }
+  .cardfl { justify-content: center; margin: 0 0 10px; }
+  .fbtn {
+    font: inherit;
+    font-size: 0.72rem;
+    padding: 4px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--mute);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .fbtn[data-f="unsure"].on { color: #ffb86b; border-color: rgba(255, 184, 107, 0.6); background: rgba(255, 184, 107, 0.08); }
+  .fbtn[data-f="known"].on { color: #8fd694; border-color: rgba(143, 214, 148, 0.6); background: rgba(143, 214, 148, 0.08); }
+  .fbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  @media (max-width: 480px) {
+    .front { font-size: 2rem; }
+    .front.en { font-size: 1.6rem; }
+    .answers b { font-size: 0.86rem; }
+  }
+
+  /* shared navigation bar, the same on every page */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding: 12px 20px;
+    background: rgba(11, 13, 19, 0.94);
+    border-bottom: 1px solid #232939;
+    box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.95);
+    font-family: "Hiragino Sans", "Noto Sans JP", -apple-system, sans-serif;
+  }
+  .site-nav .brand {
+    font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: #d6a24a;
+    text-decoration: none;
+  }
+  .site-links { display: flex; flex-wrap: wrap; gap: 4px; }
+  .site-links a {
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #8189a0;
+    text-decoration: none;
+    font-size: 0.86rem;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .site-links a:hover { color: #ece7dc; background: rgba(255, 255, 255, 0.04); }
+  .site-links a.current {
+    color: #1a1410;
+    font-weight: 600;
+    background: linear-gradient(180deg, #e6b860, #d6a24a);
+  }
+  .site-links a:focus-visible { outline: 2px solid #d6a24a; outline-offset: 2px; }
+</style>
+</head>
+<body>
+  <nav class="site-nav" aria-label="ページ">
+    <a class="brand" href="index.html">Konan</a>
+    <div class="site-links">
+      <a href="index.html">年表</a>
+      <a href="ratings.html">評価</a>
+      <a href="tiers.html">見どころ</a>
+      <a href="words.html" class="current" aria-current="page">単語</a>
+      <a href="stats.html">統計</a>
+      <a href="songs.html">主題歌</a>
+    </div>
+  </nav>
+<div class="wrap">
+  <h1>単語カード</h1>
+
+  <div class="choices" role="group" aria-label="デッキ">
+    <button type="button" class="chip" data-deck="case" aria-pressed="false">事件</button>
+    <button type="button" class="chip" data-deck="police" aria-pressed="false">警察・職業</button>
+    <button type="button" class="chip" data-deck="daily" aria-pressed="false">日常</button>
+    <button type="button" class="chip" data-deck="all" aria-pressed="true">すべて</button>
+  </div>
+  <div class="choices" role="group" aria-label="向き">
+    <button type="button" class="chip" data-dir="ja2en" aria-pressed="true">日本語 → 英語</button>
+    <button type="button" class="chip" data-dir="en2ja" aria-pressed="false">英語 → 日本語</button>
+  </div>
+  <div class="choices" role="group" aria-label="表示">
+    <button type="button" class="chip" data-view="card" aria-pressed="true">カード</button>
+    <button type="button" class="chip" data-view="list" aria-pressed="false">一覧</button>
+  </div>
+
+  <div class="status">
+    <span id="left"></span>
+    <label>1日の新規 <select id="newLimit"><option>5</option><option>10</option><option>20</option><option>30</option></select></label>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+
+  <div id="area"><p class="note">読み込み中…</p></div>
+
+  <div class="foot">
+    <span id="summary"></span>
+    <button type="button" class="reset" id="reset">進みをリセット</button>
+  </div>
+  <p class="note">進み具合はこの端末のブラウザに保存されます。間隔は簡単な忘却曲線（SM-2 に近い方式）で計算しています。</p>
+</div>
+
+<script>
+(function () {
+  var CARDS_KEY = 'konan-words-v1', DAY_KEY = 'konan-words-day', SET_KEY = 'konan-words-set';
+  var DECK_NAMES = { case: '事件', police: '警察・職業', daily: '日常' };
+  var words = [];
+  var state = { deck: 'all', dir: 'ja2en', view: 'card', filter: 'all' };
+  var queue = [];
+  var flipped = false;
+
+  function esc(s) {
+    return String(s || '').replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function today() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  function load(key, fallback) { try { var v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; } catch (e) { return fallback; } }
+  function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+
+  function getCards() { return load(CARDS_KEY, {}); }
+  function getDay() {
+    var d = load(DAY_KEY, null);
+    if (!d || d.date !== today()) d = { date: today(), newSeen: 0 };
+    return d;
+  }
+  function newLimit() { return parseInt(document.getElementById('newLimit').value, 10) || 10; }
+
+  // one review step. grade: 1 again, 2 hard, 3 good, 4 easy
+  function nextState(s, grade) {
+    var c = s ? { r: s.r, i: s.i, e: s.e, d: s.d, l: s.l } : { r: 0, i: 0, e: 2.5, d: 0, l: 0 };
+    var now = Date.now();
+    var first = c.r === 0;
+    if (grade === 1) { if (!first) c.l += 1; c.e = Math.max(1.3, c.e - 0.2); c.i = 0; c.d = now + 10 * 60000; }
+    else if (grade === 2) { c.i = first ? 1 : Math.max(1, Math.round(c.i * 1.2)); c.e = Math.max(1.3, c.e - 0.15); c.d = now + c.i * 864e5; }
+    else if (grade === 3) { c.i = first ? 1 : Math.max(1, Math.round(c.i * c.e)); c.d = now + c.i * 864e5; }
+    else { c.i = first ? 4 : Math.max(1, Math.round(c.i * c.e * 1.3)); c.e += 0.15; c.d = now + c.i * 864e5; }
+    c.r += 1;
+    return c;
+  }
+  function label(s, grade) {
+    if (grade === 1) return '10分';
+    var c = nextState(s, grade);
+    return c.i + '日';
+  }
+
+  function inDeck(w) { return state.deck === 'all' || w.deck === state.deck; }
+
+  function buildQueue() {
+    var cards = getCards();
+    var now = Date.now();
+    var due = words.filter(function (w) { return inDeck(w) && !isKnown(w.id) && cards[w.id] && cards[w.id].d <= now; })
+      .sort(function (a, b) { return cards[a.id].d - cards[b.id].d; });
+    var day = getDay();
+    var room = Math.max(0, newLimit() - day.newSeen);
+    var fresh = words.filter(function (w) { return inDeck(w) && !isKnown(w.id) && !cards[w.id]; }).slice(0, room);
+    queue = due.concat(fresh);
+  }
+
+  function frontHTML(w) {
+    if (state.dir === 'ja2en') {
+      var ruby = w.kana && w.kana !== w.ja ? '<ruby>' + esc(w.ja) + '<rt>' + esc(w.kana) + '</rt></ruby>' : esc(w.ja);
+      return '<div class="front">' + ruby + '</div>';
+    }
+    return '<div class="front en">' + esc(w.en) + '</div>';
+  }
+  function backHTML(w) {
+    var main = state.dir === 'ja2en' ? '<div class="en-main">' + esc(w.en) + '</div>'
+      : '<div class="en-main">' + esc(w.ja) + (w.kana && w.kana !== w.ja ? '（' + esc(w.kana) + '）' : '') + '</div>';
+    return '<div class="back">' + main +
+      '<div class="ex">' + esc(w.ex) + '</div>' +
+      '<div class="ex-en">' + esc(w.exEn) + '</div>' +
+      '</div>';
+  }
+
+  // manual flags: 怪しい (unsure, just a mark) and 覚えた (known, left out of study)
+  var FLAG_KEY = 'konan-words-flags';
+  function getFlags() { return load(FLAG_KEY, {}); }
+  function isKnown(id) { var f = getFlags()[id]; return !!(f && f.known); }
+  function toggleFlag(id, key) {
+    var flags = getFlags();
+    flags[id] = flags[id] || {};
+    flags[id][key] = !flags[id][key];
+    save(FLAG_KEY, flags);
+    if (key === 'known' && flags[id].known) queue = queue.filter(function (w) { return w.id !== id; });
+    flipped = false;
+    render();
+  }
+  function filterChips() {
+    var opts = [['all', 'すべて'], ['unsure', '怪しいだけ'], ['known', '覚えただけ']];
+    return '<div class="choices" role="group" aria-label="絞り込み">' + opts.map(function (o) {
+      return '<button type="button" class="chip" data-lf="' + o[0] + '" aria-pressed="' + (state.filter === o[0]) + '">' + o[1] + '</button>';
+    }).join('') + '</div>';
+  }
+
+  // every word in the deck, with its status and next review
+  function rubyOf(w) {
+    return w.kana && w.kana !== w.ja ? '<ruby>' + esc(w.ja) + '<rt>' + esc(w.kana) + '</rt></ruby>' : esc(w.ja);
+  }
+  function fmtDate(ms) { var d = new Date(ms); return (d.getMonth() + 1) + '/' + d.getDate(); }
+  function listHTML() {
+    var cards = getCards(), now = Date.now();
+    var fl = getFlags();
+    var rows = words.filter(inDeck).filter(function (w) {
+      var f = fl[w.id] || {};
+      return state.filter === 'all' || (state.filter === 'unsure' ? !!f.unsure : !!f.known);
+    }).map(function (w) {
+      var s = cards[w.id];
+      var f = fl[w.id] || {};
+      var st, due;
+      if (!s) { st = '<span class="st new">新規</span>'; due = '—'; }
+      else {
+        st = s.i >= 21 ? '<span class="st done">覚えた</span>' : '<span class="st learn">学習中</span>';
+        due = s.d <= now ? '今日' : fmtDate(s.d);
+      }
+      return '<li class="word">' +
+        '<div class="w-main"><span class="w-ja">' + rubyOf(w) + '</span><span class="w-en">' + esc(w.en) + '</span>' +
+          '<div class="w-ex">' + esc(w.ex) + '</div></div>' +
+        '<div class="w-side">' + (f.known ? '<span class="st done">覚えた</span>' : st) +
+          (f.unsure ? '<span class="st unsure">怪しい</span>' : '') + '<span class="due">次 ' + due + '</span>' +
+          '<div class="fl"><button type="button" class="fbtn' + (f.unsure ? ' on' : '') + '" data-f="unsure" data-id="' + w.id + '">怪しい</button>' +
+          '<button type="button" class="fbtn' + (f.known ? ' on' : '') + '" data-f="known" data-id="' + w.id + '">覚えた</button></div></div>' +
+      '</li>';
+    }).join('');
+    return filterChips() + '<ol class="list">' + rows + '</ol>';
+  }
+
+  function render() {
+    var area = document.getElementById('area');
+    if (state.view === 'list') {
+      var cs = getCards(), tot = words.filter(inDeck).length;
+      var lrn = words.filter(function (w) { return inDeck(w) && cs[w.id]; }).length;
+      document.getElementById('summary').textContent = (DECK_NAMES[state.deck] || 'すべて') + '：' + lrn + ' / ' + tot + ' 語に取り組み済み';
+      document.getElementById('bar').style.width = tot ? Math.round(lrn / tot * 100) + '%' : '0';
+      document.getElementById('left').textContent = '全 ' + tot + ' 語';
+      area.innerHTML = listHTML();
+      return;
+    }
+    var cards = getCards();
+    var total = words.filter(inDeck).length;
+    var learned = words.filter(function (w) { return inDeck(w) && cards[w.id]; }).length;
+    document.getElementById('summary').textContent = (DECK_NAMES[state.deck] || 'すべて') + '：' + learned + ' / ' + total + ' 語に取り組み済み';
+    document.getElementById('bar').style.width = total ? Math.round(learned / total * 100) + '%' : '0';
+
+    if (!queue.length) {
+      var now = Date.now();
+      var nextDue = words.filter(function (w) { return inDeck(w) && cards[w.id]; })
+        .map(function (w) { return cards[w.id].d; }).filter(function (d) { return d > now; }).sort(function (a, b) { return a - b; })[0];
+      var msg = nextDue ? '次の復習は ' + new Date(nextDue).getHours() + ':' + String(new Date(nextDue).getMinutes()).padStart(2, '0') + ' ごろです。' : 'このデッキは一通り終わりました。';
+      area.innerHTML = '<div class="card done"><strong>今日はここまで</strong>' + msg + '</div>';
+      document.getElementById('left').textContent = '残り 0 語';
+      return;
+    }
+
+    var w = queue[0];
+    var s = cards[w.id];
+    document.getElementById('left').textContent = '残り ' + queue.length + ' 語' + (s ? '（復習）' : '（新規）');
+    var wf = getFlags()[w.id] || {};
+    var head = '<div class="deckname">' + (DECK_NAMES[w.deck] || '') + '</div>' +
+      '<div class="fl cardfl"><button type="button" class="fbtn' + (wf.unsure ? ' on' : '') + '" data-f="unsure" data-id="' + w.id + '">怪しい</button>' +
+      '<button type="button" class="fbtn' + (wf.known ? ' on' : '') + '" data-f="known" data-id="' + w.id + '">覚えた</button></div>';
+    if (!flipped) {
+      area.innerHTML = '<div class="card">' + head + frontHTML(w) +
+        '<div class="flip-hint">スペースキーでもめくれます</div></div>' +
+        '<button type="button" class="flip" id="flip">めくる</button>';
+      document.getElementById('flip').addEventListener('click', flip);
+    } else {
+      area.innerHTML = '<div class="card">' + head + frontHTML(w) + backHTML(w) + '</div>' +
+        '<div class="answers">' +
+          '<button type="button" class="a1" data-g="1"><b>もう一度</b><span>' + label(s, 1) + '</span></button>' +
+          '<button type="button" class="a2" data-g="2"><b>難しい</b><span>' + label(s, 2) + '</span></button>' +
+          '<button type="button" class="a3" data-g="3"><b>普通</b><span>' + label(s, 3) + '</span></button>' +
+          '<button type="button" class="a4" data-g="4"><b>簡単</b><span>' + label(s, 4) + '</span></button>' +
+        '</div>';
+      area.querySelectorAll('.answers button').forEach(function (b) {
+        b.addEventListener('click', function () { rate(+b.dataset.g); });
+      });
+    }
+  }
+
+  function flip() { flipped = true; render(); }
+
+  function rate(grade) {
+    if (!queue.length || !flipped) return;
+    var w = queue.shift();
+    var cards = getCards();
+    var wasNew = !cards[w.id];
+    cards[w.id] = nextState(cards[w.id], grade);
+    save(CARDS_KEY, cards);
+    if (wasNew) { var day = getDay(); day.newSeen += 1; save(DAY_KEY, day); }
+    if (grade === 1) queue.splice(Math.min(3, queue.length), 0, w);   // see it again soon in this session
+    flipped = false;
+    render();
+  }
+
+  function saveSettings() { save(SET_KEY, { deck: state.deck, dir: state.dir, view: state.view, newLimit: newLimit() }); }
+
+  function setView(v) {
+    state.view = v;
+    saveSettings();
+    document.querySelectorAll('[data-view]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === v)); });
+    flipped = false; render();
+  }
+  document.querySelectorAll('[data-view]').forEach(function (b) { b.addEventListener('click', function () { setView(b.dataset.view); }); });
+
+  function setDeck(deck) {
+    state.deck = deck;
+    saveSettings();
+    document.querySelectorAll('[data-deck]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.deck === deck)); });
+    flipped = false; buildQueue(); render();
+  }
+  function setDir(dir) {
+    state.dir = dir;
+    saveSettings();
+    document.querySelectorAll('[data-dir]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.dir === dir)); });
+    flipped = false; render();
+  }
+
+  document.querySelectorAll('[data-deck]').forEach(function (b) { b.addEventListener('click', function () { setDeck(b.dataset.deck); }); });
+  document.querySelectorAll('[data-dir]').forEach(function (b) { b.addEventListener('click', function () { setDir(b.dataset.dir); }); });
+  document.getElementById('newLimit').value = String(load(SET_KEY, {}).newLimit || 10);
+  document.getElementById('newLimit').addEventListener('change', function () {
+    saveSettings();
+    buildQueue(); flipped = false; render();
+  });
+  document.getElementById('area').addEventListener('click', function (e) {
+    var fb = e.target.closest('[data-f]');
+    if (fb) { toggleFlag(+fb.dataset.id, fb.dataset.f); return; }
+    var lf = e.target.closest('[data-lf]');
+    if (lf) { state.filter = lf.dataset.lf; render(); }
+  });
+  document.getElementById('reset').addEventListener('click', function () {
+    if (!confirm('この端末の単語の進みをすべて消しますか？（怪しい・覚えたの印も消えます）')) return;
+    try { localStorage.removeItem(CARDS_KEY); localStorage.removeItem(DAY_KEY); localStorage.removeItem(FLAG_KEY); } catch (e) {}
+    buildQueue(); flipped = false; render();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' || state.view === 'list') return;
+    if (!flipped && (e.key === ' ' || e.key === 'Enter') && queue.length) { e.preventDefault(); flip(); }
+    else if (flipped && ['1', '2', '3', '4'].indexOf(e.key) >= 0) { rate(+e.key); }
+  });
+
+  fetch('data/words.json')
+    .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+    .then(function (list) {
+      words = list;
+      var saved = load(SET_KEY, {});
+      state.deck = saved.deck || 'all';
+      state.dir = saved.dir || 'ja2en';
+      state.view = saved.view || 'card';
+      document.querySelectorAll('[data-view]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === state.view)); });
+      document.querySelectorAll('[data-deck]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.deck === state.deck)); });
+      document.querySelectorAll('[data-dir]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.dir === state.dir)); });
+      buildQueue();
+      render();
+    })
+    .catch(function () {
+      document.getElementById('area').innerHTML = '<p class="note">単語データが読み込めませんでした。</p>';
+    });
+})();
+</script>
+<script>if (/^(localhost|127[.]0[.]0[.]1)$/.test(location.hostname)) { var last = null; setInterval(function () { var f = location.pathname.endsWith('/') ? 'index.html' : location.pathname.split('/').pop(); fetch(f, { method: 'HEAD', cache: 'no-store' }).then(function (r) { var m = r.headers.get('last-modified'); if (last && m !== last) location.reload(); last = m; }).catch(function () {}); }, 1000); }</script>
+</body>
+</html>
