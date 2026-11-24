@@ -155,7 +155,6 @@
       <a href="ratings.html">評価</a>
       <a href="tiers.html" class="current" aria-current="page">見どころ</a>
       <a href="words.html">単語</a>
-      <a href="stats.html">統計</a>
       <a href="songs.html">主題歌</a>
     </div>
     <label class="prog">見た話 <input type="number" id="progInput" min="1" max="1218" inputmode="numeric" placeholder="全部"> 話まで</label>
@@ -218,7 +217,6 @@
           html += '<div class="ep t' + tt + '" data-e="' + e.e + '">' +
             '<span class="no">第' + e.e + '話</span>' +
             '<span class="name">' + esc(e.name) + '<span class="tg t' + tt + '">tier' + tt + '</span></span>' +
-            '<span class="air">' + esc(e.air) + '</span>' +
           '</div>';
         });
         list.innerHTML = html || '<p class="msg">まだありません。</p>';

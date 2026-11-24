@@ -10,7 +10,6 @@ const SHELL = [
   './icons/apple-touch-icon.png',
   './ratings.html',
   './songs.html',
-  './stats.html',
   './tiers.html',
   './data/tiers.json',
   './words.html',

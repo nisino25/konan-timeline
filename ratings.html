@@ -394,7 +394,6 @@
       <a href="ratings.html" class="current" aria-current="page">評価</a>
       <a href="tiers.html">見どころ</a>
       <a href="words.html">単語</a>
-      <a href="stats.html">統計</a>
       <a href="songs.html">主題歌</a>
     </div>
     <label class="prog">見た話 <input type="number" id="progInput" min="1" max="1218" inputmode="numeric" placeholder="全部"> 話まで</label>
@@ -631,7 +630,19 @@
       fetch('data/episodes.json').then(function (r) { if (!r.ok) throw new Error(); return r.json(); }),
       fetch('data/tiers.json').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })
     ])
-      .then(function (res) { TIER = res[1]; render(res[0]); })
+      .then(function (res) {
+        TIER = res[1];
+        render(res[0]);
+        // jump to the season you are on (only when a progress is set)
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        if (window.konanProgress() < 1218) {
+          var curSec = document.querySelector('.season[data-s="' + seasonOf(window.konanProgress()) + '"]');
+          if (curSec) {
+            var navR = document.querySelector('.site-nav');
+            window.scrollTo(0, Math.max(0, curSec.getBoundingClientRect().top + window.pageYOffset - (navR ? navR.offsetHeight : 0) - 8));
+          }
+        }
+      })
       .catch(function () {
         document.getElementById('map').innerHTML = '<p class="msg">評価データが読み込めませんでした。</p>';
       });

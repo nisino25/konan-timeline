@@ -64,6 +64,7 @@
     margin-bottom: 8px;
   }
   .pair.head { margin-bottom: 6px; }
+  .pair.now .song { outline: 2px solid var(--gold); outline-offset: 3px; }
   .col-h {
     font-size: 0.7rem;
     font-weight: 700;
@@ -190,7 +191,6 @@
       <a href="ratings.html">評価</a>
       <a href="tiers.html">見どころ</a>
       <a href="words.html">単語</a>
-      <a href="stats.html">統計</a>
       <a href="songs.html" class="current" aria-current="page">主題歌</a>
     </div>
     <label class="prog">見た話 <input type="number" id="progInput" min="1" max="1218" inputmode="numeric" placeholder="全部"> 話まで</label>
@@ -252,13 +252,26 @@
           year = y;
           html += '<div class="year">' + y + '</div>';
         }
-        html += '<div class="pair">' +
+        html += '<div class="pair" data-f="' + s.f + '">' +
           '<div class="col">' + (s.k === 'op' ? card(s) : '<div class="empty"></div>') + '</div>' +
           '<div class="epout">EP' + s.f + '</div>' +
           '<div class="col">' + (s.k === 'ed' ? card(s) : '<div class="empty"></div>') + '</div>' +
         '</div>';
       });
       document.getElementById('list').innerHTML = html;
+
+      // jump to the song on the current episode (only when a progress is set)
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      var cur = window.konanProgress();
+      if (cur < 1218) {
+        var upTo = Array.prototype.filter.call(document.querySelectorAll('.pair[data-f]'), function (p) { return +p.dataset.f <= cur; });
+        var now = upTo[upTo.length - 1];
+        if (now) {
+          now.classList.add('now');
+          var navS = document.querySelector('.site-nav');
+          window.scrollTo(0, Math.max(0, now.getBoundingClientRect().top + window.pageYOffset - (navS ? navS.offsetHeight : 0) - 12));
+        }
+      }
     }).catch(function () {
       document.getElementById('list').innerHTML = '<p class="msg">データが読み込めませんでした。</p>';
     });
