@@ -90,6 +90,11 @@
   .tg.t1 { background: var(--t1); }
   .tg.t2 { background: var(--t2); }
   .tg.t3 { background: var(--t3); color: #fff; }
+  /* the episode before a movie, and the movie itself */
+  .ep.lead { --chip: var(--line); }
+  .tg.lead { background: var(--line); color: var(--mute); }
+  .ep.movie { --chip: var(--gold); }
+  .tg.mv { background: var(--gold); color: #1a1410; }
   /* the first episode after the one you are on */
   .ep.next { outline: 2px solid var(--gold); outline-offset: 3px; }
   /* watched-up-to picker in the nav */
@@ -188,11 +193,13 @@
 
     Promise.all([
       fetch('data/episodes.json').then(function (r) { if (!r.ok) throw new Error(); return r.json(); }),
-      fetch('data/tiers.json').then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      fetch('data/tiers.json').then(function (r) { if (!r.ok) throw new Error(); return r.json(); }),
+      fetch('data/movies.json').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
     ]).then(function (res) {
       var byNum = {};
       res[0].conan.forEach(function (e) { byNum[e.e] = e; });
       var tiers = res[1];
+      var movies = res[2] || [];
 
       // episodes per tier, in broadcast order
       var lists = { 1: [], 2: [], 3: [] };
@@ -207,20 +214,50 @@
       var list = document.getElementById('list');
       var count = document.getElementById('count');
 
+      // all: tier2 and tier3 episodes plus each movie, with the episode aired just before it
+      function allRows() {
+        var items = [], seen = {};
+        lists[2].concat(lists[3]).forEach(function (e) {
+          items.push({ kind: 'ep', e: e, tier: tiers[e.e], date: e.air });
+          seen[e.e] = true;
+        });
+        movies.forEach(function (m) {
+          if (m.prev && byNum[m.prev] && !seen[m.prev]) {
+            items.push({ kind: 'ep', e: byNum[m.prev], tier: null, lead: true, date: byNum[m.prev].air });
+            seen[m.prev] = true;
+          }
+          items.push({ kind: 'movie', m: m, date: m.date });
+        });
+        return items.sort(function (a, b) {
+          if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+          return (a.kind === 'ep' ? 0 : 1) - (b.kind === 'ep' ? 0 : 1);
+        });
+      }
+
       function show(t) {
-        var year = null;
-        var html = '';
-        lists[t].forEach(function (e) {
-          var y = (e.air || '').slice(0, 4) || '—';
+        var year = null, html = '', nEp = 0, nMv = 0;
+        var rows = t === 'all' ? allRows() : lists[t].map(function (e) { return { kind: 'ep', e: e, tier: t, date: e.air }; });
+        rows.forEach(function (r) {
+          var y = (r.date || '').slice(0, 4) || '—';
           if (y !== year) { year = y; html += '<div class="year">' + y + '</div>'; }
-          var tt = t === 'all' ? tiers[e.e] : t;
-          html += '<div class="ep t' + tt + '" data-e="' + e.e + '">' +
-            '<span class="no">第' + e.e + '話</span>' +
-            '<span class="name">' + esc(e.name) + '<span class="tg t' + tt + '">tier' + tt + '</span></span>' +
-          '</div>';
+          if (r.kind === 'ep') {
+            nEp++;
+            var tag = r.tier ? '<span class="tg t' + r.tier + '">tier' + r.tier + '</span>'
+              : (r.lead ? '<span class="tg lead">映画の前</span>' : '');
+            html += '<div class="ep ' + (r.tier ? 't' + r.tier : 'lead') + '" data-e="' + r.e.e + '">' +
+              '<span class="no">第' + r.e.e + '話</span>' +
+              '<span class="name">' + esc(r.e.name) + tag + '</span>' +
+            '</div>';
+          } else {
+            nMv++;
+            html += '<div class="ep movie" data-e="' + (r.m.prev || 0) + '">' +
+              '<span class="no">映画' + (r.m.n || '') + '</span>' +
+              '<span class="name">' + esc(r.m.title) + '<span class="tg mv">MOVIE</span></span>' +
+            '</div>';
+          }
         });
         list.innerHTML = html || '<p class="msg">まだありません。</p>';
-        count.textContent = lists[t].length + '話';
+        count.textContent = t === 'all' ? nEp + '話 ・ 映画' + nMv + '本' : lists[t].length + '話';
 
         // scroll to the first episode after the one you are on (if a progress is set)
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
